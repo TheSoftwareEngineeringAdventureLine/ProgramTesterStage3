@@ -1,0 +1,91 @@
+% !TEX root = SystemTemplate.tex
+\chapter{Design  and Implementation}
+ This section describes the design details for the overall system as well as individual major components. As a user, you will have a good understanding of the implemetation details without having to look into the code. Here is the  
+
+
+\begin{itemize}
+  \item Create a queue of every subdirectory in program folder
+  \item Change to directory where program is located
+  \item Compile program
+  \item While subdirectory queue is not empty:
+  \item Dequeue first subdirectory in queue
+  \item Change into that subdirectory
+  \item Create a queue of every .tst file in current directory
+  \item While test case queue is not empty:
+  \item Dequeue first test case in queue
+  \item Run program using that test case
+  \item Count whether the program passed or failed test case
+  \item Change back to home directory (where program is located)
+  \item Create a queue of every .tst file in home directory
+  \item While test case queue is not empty:
+  \item Dequeue first test case in queue
+  \item Run program using that test case
+  \item Count whether the program passed or failed test case
+  \item Write log file containing percentage of tests passed and final grade
+\end{itemize}
+
+
+\section{Traversing Subdirectories }
+
+\subsection{Technologies  Used}
+The dirent.h library is used for traversing subdirectories.
+
+\subsection{Design Details}
+
+\begin{lstlisting}
+
+bool change_dir(string dir_name)
+{
+    string path;
+    if(chdir(dir_name.c_str()) == 0) 
+    {
+        path = get_pathname();
+        return true;
+    }
+    return false;
+}
+
+bool is_dir(string dir)
+{
+    struct stat file_info;
+    stat(dir.c_str(), &file_info);
+    if ( S_ISDIR(file_info.st_mode) ) 
+        return true;
+    else 
+        return false;
+}
+\end{lstlisting}
+
+\section{Running the Program Using Test Cases }
+
+\subsection{Technologies  Used}
+The software was designed in the Linux Environment provided to the group by the University.
+
+
+
+\subsection{Design Details}
+
+
+\begin{lstlisting}
+int run_file(string cpp_file, string test_case) //case_num
+{
+    //create .out file name
+    string case_out(case_name(test_case, "out"));
+
+    //set up piping buffers
+    string buffer1("");
+    string buffer2(" &>/dev/null < ");
+    string buffer3(" > ");
+
+    // "try using | "
+    //construct run command, then send to system
+    //./<filename> &> /dev/null  < case_x.tst > case_x.out
+    buffer1 += cpp_file + buffer2 + test_case + buffer3 + case_out;
+    system(buffer1.c_str());
+
+    //0 = Fail, 1 = Pass
+    return result_compare(test_case);
+}
+\end{lstlisting}
+
+

@@ -1,0 +1,99 @@
+% !TEX root = SystemTemplate.tex
+\chapter{User Stories, Backlog and Requirements}
+\section{Overview}
+
+
+This section covers user stories, backlog and requirements for the system.  
+
+
+
+
+
+\subsection{Scope}
+
+This document contains stakeholder information, 
+initial user stories, requirements, proof of concept results, and various research 
+task results. 
+
+
+
+\subsection{Purpose of the System}
+The purpose of the product is to grade a {\tt <filename>.cpp} file by running test files and comparing the results to answer files, and assigning percentage grade. 
+
+
+\section{ Stakeholder Information}
+
+
+This section would provide the basic description of all of the stakeholders for 
+the project.
+
+\subsection{Customer or End User (Product Owner)}
+Jonathan Dixon is the product owner in this project, who is in contact with the scrum master and technical lead regarding the backlog. 
+
+\subsection{Management or Instructor (Scrum Master)}
+Hafiza Farzami is the scrum master, who breaks the project into smaller tasks, and is in touch with both product owner and technical lead.
+
+%\subsection{Investors}
+%Are there any?  Who?  What role will they play? 
+
+
+\subsection{Developers --Testers}
+Julian Brackins is the technical lead for Sprint 1, and is in contact with both Dixon and Farzami regarding the requirements during scrum meetings and through trello notes. 
+
+
+
+\section{Business Need}
+This product is essential for grading computer science programs focused on numerics. All the user have to do is have test cases and expected results in the directory that the {\tt <filename>.cpp} file is in and any of the subdirectories, and run the {\tt grade.cpp} program. It saves a lot of time, and is efficient. 
+
+\section{Requirements and Design Constraints}
+Use this section to discuss what requirements exist that deal with meeting the 
+business need.  These requirements might equate to design constraints which can 
+take the form of system, network, and/or user constraints.  Examples:  Windows 
+Server only, iOS only, slow network constraints, or no offline, local storage capabilities. 
+
+
+\subsection{System  Requirements}
+This product runs on Linux machines. 
+
+
+\subsection{Network Requirements}
+This software does not require internet connection. 
+
+
+\subsection{Development Environment Requirements}
+There are not any development environment requirements.
+
+
+\subsection{Project  Management Methodology}
+The method used to manage this project is {\tt scrum}. The scrum master met with the product owner, and broke the tasks down to the technical lead. The team meets for ten minutes long scrum meetings to go over the progress, next steps, and impediments. 
+ 
+\begin{itemize}
+\item Trello is used to keep track of the backlogs and sprint status
+\item Everyone has access to the Sprint and Product Backlogs
+\item This project will take three Sprints
+\item Each Sprint is two weeks long
+\item There are no restrictions on source control 
+\end{itemize}
+
+\section{User Stories}
+This section contains the user stories regarding functional requirements and how the team broke them down.
+
+
+
+
+\subsection{User Story}
+Write an automatic testing system. By Wednesday, your team should have a list of questions for me (the customer) on exactly what I require. Think CS150/250/300 programs - not major software.
+
+\subsubsection{User Story Breakdown \#1}
+
+The purpose of the program is to grade a student's file, comparing it to multiple test case files. It'll be called like this: {\tt grade <filename>.cpp}. It will grade the file, looking through the current directory for any {\tt .tst} files, which will contain the test cases. We must compile the program, which is in C++. 
+
+It is understood that all inputs will be valid (no error checking, program won't crash, etc...). The program will be tested on numeric computations. If it uses files, they'll be {\tt input.txt} and {\tt output.txt}. {\tt <filename>.log} will contain the results of each test case.
+
+The idea is to grab the test case, copy it to input.txt, run the program, compare outputs, and put results into the log file. {\tt .tst} files will have a test case followed by a blank line, followed by expected results.
+
+\subsubsection{User Story Breakdown \#2}
+A student submits a program.  That program is placed into a directory that forms the root of the directory tree related to that program.  All the instructors and teacher's assistant will have the ability to write test cases (called case\#.tst and the accompanying file case\#.ans).  There are no restrictions on where those files can be located except that they will be at the level of the .cpp file or below.  For example. Manes might have a subdirectory where he puts his test cases.  His TAs might have subdirectories under the Manes subdirectory where they put their test cases.  Manes might just make the directory but not put any test cases in it just so his TAs have a place to put theirs (in subdirectories).  I want to say 
+test quadratic
+and have your program find all the applicable test cases (with the accompanying answer files), run the tests, log the results, and provide a summary.  I want to be able to fix problems and rerun the test without losing the original log file.  Append the date so I can tell them apart.
+
