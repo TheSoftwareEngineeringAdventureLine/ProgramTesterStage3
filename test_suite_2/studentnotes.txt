@@ -1,0 +1,5 @@
+Expected results of each student
+student1: outputs zero for every test case
+student2-student7: same as the calculator.cpp from the customer test
+		   case provided in sprint1
+
