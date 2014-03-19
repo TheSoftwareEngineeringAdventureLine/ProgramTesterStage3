@@ -1002,7 +1002,7 @@ void generateFiles(string testPath, string goldenName)
 	const string integer = "int";
 	const string floating = "float";
 	string type, compileCommand, tempPath;
-	string generatedNameBase = "GENERATED_TEST_FILE_";
+	string generatedNameBase = "\\GENERATED_TEST_FILE_";
 	string tst = ".tst";
 	string ans = ".ans";
 	int min, max, numCases, numFiles;
