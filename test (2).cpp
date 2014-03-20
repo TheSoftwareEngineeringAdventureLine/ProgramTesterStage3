@@ -158,7 +158,7 @@ string get_pathname();
 string case_name(string test_case, string ext);
 string timestamp();
 string str_replace(string str, char a, char b);
-string student_log_file(string str);
+string student_log_file(string source);
 string student_name(string source);
 
 /*Not used in Sprint 1*/
@@ -327,7 +327,7 @@ bool test_loop(string cpp_file)
 
     vector_directories(cpp_file, sub_dir);   //place all subdirectory names in vector
 
-    //Open file
+    //Open summary log file
     fout.open((homepath + log_name).c_str());    //open file
 
     //use this to find all the students source code, the path to the source code,
@@ -348,7 +348,7 @@ bool test_loop(string cpp_file)
         {
             change_dir(homepath + sub_dir.back()); //change to next subdirectory in vector
 
-            vector_test_cases(test_cases, crit_cases);           //vector .tst files in current directory
+            vector_test_cases(test_cases, crit_cases); //vector .tst files in current directory
 
             test_cases_temp = count_case();         //count the number of .tst files... MIGHT REMOVE
             test_cases_total += test_cases_temp;
@@ -367,7 +367,7 @@ bool test_loop(string cpp_file)
     //for each source file in _source, do the following
     i = _source.size();
     for (int j = 0; j < i; j++)
-    {   
+    {
         cout << _source.back() << endl;
         passed = true;
         total = 0;
@@ -391,18 +391,11 @@ bool test_loop(string cpp_file)
             return false;
         }
         if(crit_cases.size() > 0)
-        {
             passed = test_code(_source.back(), crit_cases, total, student_fout);
-            
-        }  
 
         if(passed)
-        {
             if(test_cases.size() > 0)
-            {
                 test_code(_source.back(), test_cases, total, student_fout);
-            }     
-        }
 
         //output grade to log file
         if(passed)
@@ -414,7 +407,7 @@ bool test_loop(string cpp_file)
             fout << student_name(_source.back())<< "\t\t%" << grade << endl;
         }
         else
-        {   
+        {
             int grade = 0;
             student_fout << "FAILED" << endl;
             student_fout << "percentage: " << grade << "%\n";
@@ -424,6 +417,7 @@ bool test_loop(string cpp_file)
         //return to the homepath
         change_dir(homepath);
 
+        //close student logfile
         student_fout.close();
         cout << "Done.\n";
 
@@ -432,15 +426,49 @@ bool test_loop(string cpp_file)
 
 
     }
+    //close summary logfile
     fout.close();
     return true;
 }
 
+/**************************************************************************//**
+ * @author Benjamin Sherman
+ *
+ * @par Description:
+ * The algorithm, given a students source code name, returns the name of the
+ * file without the extension.
+ *
+ * @param[in] source - name of a student source code file
+ *
+ * @returns name of student source code file without extension
+ *
+ *****************************************************************************/
 string student_name(string source)
 {
-        return source.substr(0, source.find_last_of("."));
+    return source.substr(0, source.find_last_of("."));
 }
 
+/**************************************************************************//**
+ * @author Benjamin Sherman
+ *
+ * @par Description:
+ * The algorithm, given a student source code file name and a vector of test
+ * cases will test the students code on every test case in the vector.
+ *
+ * The file output stream "fout" is passed by reference to write to a student
+ * logfile. Total is passed by reference to keep track of the number of tests
+ * a students code has gone through. "passed" is returned and stores whether
+ *
+ * @param[in] cpp_file - name of student source code file to be tested
+ * @param[in] total - used to keep track of the total number of test cases a
+ * student's source code has undergone
+ * @param[in] four - student's logfile with detailed information on whether
+ * a student passed or failed
+ *
+ * @returns true - student source code passed all test cases
+ * @returns false - student source code failed at least one test case
+ *
+ *****************************************************************************/
 bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream &fout)
 {
     string subpath;
@@ -453,7 +481,7 @@ bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream 
         if ( run_file(cpp_file, test_cases[i]) == 1) // run_file(criticaltests[i], subpath+test_cases[i])
         {
             total += 1;
-            fout << "PASSED\n";  
+            fout << "PASSED\n";
         }
         else
         {
@@ -1189,11 +1217,24 @@ bool event_loop()
     return true;
 }
 
-string student_log_file(string str)
+/**************************************************************************//**
+ * @author Benjamin Sherman
+ *
+ * @par Description:
+ * The algorithm given a student source code, removes the ".cpp" extension and
+ * appends ".log" extenstion. The function is used to generate a log file name
+ * for each student.
+ *
+ * @param[in] source - name of a student source code file
+ *
+ * @returns name of student source code file without extension
+ *
+ *****************************************************************************/
+string student_log_file(string source)
 {
-    str = str.substr(0, str.find_last_of("."));
-    str = log_filename(str);
-    return str;
+    source = source.substr(0, source.find_last_of("."));
+    source = log_filename(source);
+    return source;
 }
 
 /**************************************************************************//**
