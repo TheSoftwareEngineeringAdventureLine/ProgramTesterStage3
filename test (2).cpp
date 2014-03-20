@@ -159,6 +159,7 @@ string case_name(string test_case, string ext);
 string timestamp();
 string str_replace(string str, char a, char b);
 string student_log_file(string str);
+string student_name(string source);
 
 /*Not used in Sprint 1*/
 bool event_loop();
@@ -212,7 +213,6 @@ int compile_file(string cpp_file)
     string buffer("g++ -o");
     string out_name = cpp_file;
     cpp_file.erase(cpp_file.length()-4);
-
     buffer += " " + cpp_file + " " + out_name;
     return system(buffer.c_str());
 }
@@ -240,18 +240,21 @@ int compile_file(string cpp_file)
  *****************************************************************************/
 int run_file(string cpp_file, string test_case) //case_num
 {
+    string run_cmd("./");
+    cpp_file = student_name(cpp_file);
+    run_cmd += cpp_file;
     //create .out file name
     string case_out(case_name(test_case, "out"));
 
     //set up piping buffers
     string buffer1("");
-    string buffer2(" &>/dev/null < ");
+    string buffer2(" &> /dev/null < ");
     string buffer3(" > ");
 
     // "try using | "
     //construct run command, then send to system
     //./<filename> &> /dev/null  < case_x.tst > case_x.out
-    buffer1 += cpp_file + buffer2 + test_case + buffer3 + case_out;
+    buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
     system(buffer1.c_str());
 
     //0 = Fail, 1 = Pass
@@ -352,7 +355,7 @@ bool test_loop(string cpp_file)
 
             if(test_cases.size() != 0)
             {
-                fout << "In directory " << sub_dir.back() << ":\n";
+                student_fout << "In directory " << sub_dir.back() << ":\n";
                 cout << "In directory " << sub_dir.back() << ":\n";
             }
 
@@ -365,7 +368,9 @@ bool test_loop(string cpp_file)
     i = _source.size();
     for (int j = 0; j < i; j++)
     {   
+        cout << _source.back() << endl;
         passed = true;
+        total = 0;
         //cout << student_logfile(_source[j]) << endl;
         change_dir(source_paths.back());       //change directory to where prog file is located
 
@@ -385,42 +390,40 @@ bool test_loop(string cpp_file)
             err_usage();
             return false;
         }
-        
-        if(test_code(_source.back(), crit_cases, total, fout))
-            student_fout << "PASSED" << endl;
-        else
+        if(crit_cases.size() > 0)
         {
-            passed = false;
-            student_fout << "FAILED" << endl;
-            continue;
-        } 
+            passed = test_code(_source.back(), crit_cases, total, student_fout);
+            
+        }  
 
         if(passed)
         {
-            if(test_code(_source.back(), crit_cases, total, fout))
-                student_fout << "PASSED" << endl;
-            else
-                student_fout << "FAILED" << endl;     
+            if(test_cases.size() > 0)
+            {
+                test_code(_source.back(), test_cases, total, student_fout);
+            }     
         }
 
         //output grade to log file
         if(passed)
         {
             student_fout << "\n" << total << "/" << test_cases_total << " test cases passed\n";
-            double grade = grade_percent(total, test_cases_total);
+            int grade = grade_percent(total, test_cases_total);
             student_fout << "percentage: " << grade << "%\n";
             student_fout << "     grade: " << grade_letter(grade) << "\n";
+            fout << student_name(_source.back())<< "\t\t%" << grade << endl;
         }
         else
-        {
-            double grade = 0;
+        {   
+            int grade = 0;
             student_fout << "FAILED" << endl;
             student_fout << "percentage: " << grade << "%\n";
             student_fout << "     grade: " << grade_letter(grade) << "\n";
+            fout << student_name(_source.back()) << "\t\tFAILED" << endl;
         }
         //return to the homepath
         change_dir(homepath);
-        fout.close();
+
         student_fout.close();
         cout << "Done.\n";
 
@@ -429,24 +432,36 @@ bool test_loop(string cpp_file)
 
 
     }
+    fout.close();
     return true;
+}
+
+string student_name(string source)
+{
+        return source.substr(0, source.find_last_of("."));
 }
 
 bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream &fout)
 {
     string subpath;
-    for(int i = 0; i < test_cases.size(); i++) //test_cases is empty if done testing home directory
+    bool passed = true;
+    int j = test_cases.size();
+    for(int i = 0; i < j; i++) //test_cases is empty if done testing home directory
     {
         fout << test_cases[i] << ": ";
         subpath = get_pathname() + "/";
-        if ( run_file(cpp_file, subpath + test_cases[i]) == 1) // run_file(criticaltests[i], subpath+test_cases[i])
+        if ( run_file(cpp_file, test_cases[i]) == 1) // run_file(criticaltests[i], subpath+test_cases[i])
         {
             total += 1;
-            return true;//fout << "PASSED\n";
+            fout << "PASSED\n";  
         }
         else
-            return false; //fout << "FAILED\n";
+        {
+            fout << "FAILED\n";
+            passed = false;
+        }
     }
+    return passed;
 }
 
 /******************************************************************************
@@ -589,7 +604,6 @@ int result_compare(string test_file)
     //remove tmp file
     buffer = "rm " + case_tmp;
     system(buffer.c_str());
-
     if ( length == 0 ) //File is empty, no diff between .ans and .tmp
         return 1;
     else
