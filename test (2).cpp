@@ -139,6 +139,7 @@ void queue_test_cases(queue<string>& queue);
 void get_source(string& source_file);
 void student_source (queue<string>& source, string new_dir,string home,
 	queue<string>& source_path);
+void get_golden(string& source_file);
 
 /*Log files and Grade calculations*/
 string log_filename(string cpp_file);
@@ -179,7 +180,7 @@ int main(int argc, char ** argv)
     usage();
     if(argc > 1)
     {
-        cout << "testing " << argv[1] << "...";
+        cout << "testing " << argv[1] << "...\n" ;
         test_loop(argv[1]);
     }
     else
@@ -207,7 +208,10 @@ int main(int argc, char ** argv)
 int compile_file(string cpp_file)
 {
     string buffer("g++ -o");
-    buffer += " " + cpp_file + " " + add_extension(cpp_file);
+	string out_name = cpp_file;
+	cpp_file.erase(cpp_file.length()-4);
+
+    buffer += " " + cpp_file + " " + out_name;
     return system(buffer.c_str());
 }
 
@@ -301,7 +305,6 @@ bool test_loop(string cpp_file)
 	queue<string> _source;					//student source code in the directory
 	queue<string> source_paths;				//path to student source code
 
-    queue_directories(cpp_file, sub_dir);   //place all subdirectory names in queue
 
     string homepath(get_pathname() + "/");  //create string with home path name
 	
@@ -309,13 +312,16 @@ bool test_loop(string cpp_file)
 
     string progpath(get_pathname() + "/" + cpp_file + "/"); //string with path to prog file
 
+	golden_dir = homepath + cpp_file;	//create path to find golden.cpp
+	//golden = true if golden.cpp exists, golden.cpp filename will be golden_name
+	bool golden = isGolden(golden_name, golden_dir, get_pathname());
+
+	//call James' function here!
+
+    queue_directories(cpp_file, sub_dir);   //place all subdirectory names in queue
 
     //Open file
     fout.open((homepath + log_name).c_str(), ofstream::out);    //open file
-
-	golden_dir = homepath + cpp_file;	//create path to find golden.cpp
-	//golden = true if golden.cpp exists, golden.cpp filename will be golden_name
-	bool golden = isGolden(golden_name, golden_dir, homepath);	
 
 	//use this to find all the students source code, the path to the source code, 
 	// and the test files.. run the tests elsewhere.
@@ -325,7 +331,7 @@ bool test_loop(string cpp_file)
 		bool isDone = false;  //  "" "" "" "" "" """ "" "
 
 		//check if the sub directory is a students		
-		if (sub_dir.front().find("student") != -1)
+		if (sub_dir.front().find("test") == -1)
 		{
 			//look in the directory for the .cpp file and put in queue
 			student_source(_source, sub_dir.front(),homepath,source_paths);		
@@ -336,7 +342,7 @@ bool test_loop(string cpp_file)
 	        change_dir(homepath + sub_dir.front()); //change to next subdirectory in queue 
      	   
     	    queue_test_cases(test_cases);           //queue .tst files in current directory
-	
+
     	    test_cases_temp = count_case();         //count the number of .tst files... MIGHT REMOVE
     	    test_cases_total += test_cases_temp;
 
@@ -348,68 +354,76 @@ bool test_loop(string cpp_file)
     	sub_dir.pop();                          //remove sub directory from queue
     }
 
+	//for each source file in _source, do the following
+	i = _source.size();
+	for (int j = 0; j < i;j++)
+	{
+		//change into source code file -- compile it -- test it 
+	    change_dir(source_paths.front());       //change directory to where prog file is located
+   	    if(compile_file(_source.front()) != 0 )     //compile the prog file
+       		{
+        	    err_usage();
+            	return false;
+        	}
 
-	//change into source code file -- compile it -- test it 
-    //change_dir(progpath);       //change directory to where prog file is located
-    //if(compile_file(cpp_file) != 0 )     //compile the prog file
-      //  {
-        //    err_usage();
-        //    return false;
-      //  }
-
-	/*
-    while(test_cases.size() != 0)   //test_cases is empty if done testing current directory
-    {
-        subpath = get_pathname() + "/";     //reset current subpath
-        fout << test_cases.front() << ": ";
-        //cout << "TEST CASE: " << test_cases.front() << endl;
-        //count successful tests
-        //run program using currently queued test case
-        //remove test case from queue.
-        if ( run_file(progpath + cpp_file, subpath + test_cases.front()) == 1)
-        {
-            total += 1;
-            fout << "PASSED\n";
-        }
-        else
-           fout << "FAILED\n";
-        test_cases.pop();   
-    }*/
+	
+       	while(test_cases.size() != 0)   //test_cases is empty if done testing current directory
+       	{
+           	subpath = get_pathname() + "/";     //reset current subpath
+           	fout << test_cases.front() << ": ";
+           	//cout << "TEST CASE: " << test_cases.front() << endl;
+        	//count successful tests
+        	//run program using currently queued test case
+        	//remove test case from queue.
+        	if ( run_file(progpath + _source.front(), test_cases.front()) == 1)
+        	{
+            	total += 1;
+            	fout << "PASSED\n";
+        	}
+        	else
+           		fout << "FAILED\n";
+        	test_cases.pop();   
+    	}
     
-	//test to see if there are any test cases in the home directory of the cpp as well!!
-    change_dir(homepath + cpp_file);
-    queue_test_cases(test_cases);
-    test_cases_temp = count_case();
-    test_cases_total += test_cases_temp;
+		//test to see if there are any test cases in the home directory of the cpp as well!!
+    	change_dir(source_paths.front());
+    	queue_test_cases(test_cases);
+    	test_cases_temp = count_case();
+    	test_cases_total += test_cases_temp;
 
-    if(test_cases.size() != 0)
-        fout << "In directory " << homepath << cpp_file << ":\n";
+    	if(test_cases.size() != 0)
+        	fout << "In directory " << source_paths.front() << ":\n";
 
-    while(test_cases.size() != 0) //test_cases is empty if done testing home directory
-    {
-        fout << test_cases.front() << ": ";
-        subpath = get_pathname() + "/";
-        if ( run_file(progpath + cpp_file, subpath + test_cases.front()) == 1)
-        {
-            total += 1;
-            fout << "PASSED\n";
-        }
-        else
-            fout << "FAILED\n";
-        test_cases.pop();
+    	while(test_cases.size() != 0) //test_cases is empty if done testing home directory
+    	{
+        	fout << test_cases.front() << ": ";
+        	subpath = get_pathname() + "/";
+        	if ( run_file(progpath + _source.front(), test_cases.front()) == 1)
+        	{
+            	total += 1;
+            	fout << "PASSED\n";
+        	}
+        	else
+            	fout << "FAILED\n";
+        	test_cases.pop();
 
-    }
+    	}
     
-    //output grade to log file
-    fout << "\n" << total << "/" << test_cases_total << " test cases passed\n";
-    double grade = grade_percent(total, test_cases_total);
-    fout << "percentage: " << grade << "%\n";
-    fout << "     grade: " << grade_letter(grade) << "\n";
+    	//output grade to log file
+    	fout << "\n" << total << "/" << test_cases_total << " test cases passed\n";
+    	double grade = grade_percent(total, test_cases_total);
+    	fout << "percentage: " << grade << "%\n";
+    	fout << "     grade: " << grade_letter(grade) << "\n";
 
-    //return to the homepath
-    change_dir(homepath);
-    fout.close();
-    cout << "Done.\n";
+    	//return to the homepath
+    	change_dir(homepath);
+    	fout.close();
+    	cout << "Done.\n";
+
+		_source.pop();
+		source_paths.pop();
+
+		}
     return true;
 }
 
@@ -434,12 +448,12 @@ void student_source (queue<string>& source, string new_dir,string home,
 	string path = get_pathname();
 	
 	get_source(source_file);	//find the .cpp source file
-	source.push(source_file);	//queue the source file
-
-	//append to the path
-	path = path + "/" + source_file;
-	source_paths.push(path);	//queue the path
-		
+	if ( source_file.find(".cpp") != -1 )
+	{	
+		source.push(source_file);	//queue the source file
+		source_paths.push(path);	//queue the path
+	}
+	
 	//switch to home directory
 	change_dir(home);	
 }
@@ -455,11 +469,12 @@ bool isGolden(string& golden_name, string path, string home)
 
 	change_dir(path); //change into directory
 
-	get_source(name); //determine if there's a .cpp file
+	get_golden(name); //determine if there's a .cpp file
 	
 	if (name.length() > 0)	//if there is a .cpp file
 	{
 		golden_name = name;		//set golden name to the .cpp file name
+		change_dir(home);	//change back to home directory
 		return true;
 	}
 
@@ -611,6 +626,7 @@ bool is_dir(string dir)
     else 
         return false;
 }
+
 /******************************************************************************
 *
 *
@@ -618,14 +634,16 @@ bool is_dir(string dir)
 *
 *
 ******************************************************************************/
-void get_source(string& source_file)
+void get_golden(string& source_file)
 {
     DIR *dp;
     struct dirent *dirp;
     string path(get_pathname());
-    path += "/";
+	string slash = "/";
+    path += slash;
+	string cpp = ".cpp";
     string file_name;
-
+	
     if ((dp = opendir(path.c_str())) == NULL) 
     {
         cout << "Error opening directory...\n";
@@ -644,6 +662,59 @@ void get_source(string& source_file)
                     string ext (file_name.end()-4, file_name.end());    //get ext
                     if(ext.compare(".cpp") == 0)                         //check if it's a .cpp
                     {
+                        //cout << file_name << "\n";
+                        source_file = file_name;                  //add .cpp file name to queue
+                    }
+                }
+            }
+        }
+        closedir(dp);
+    }
+}
+/******************************************************************************
+*
+*
+*
+*
+*
+******************************************************************************/
+void get_source(string& source_file)
+{
+    DIR *dp;
+    struct dirent *dirp;
+    string path(get_pathname());
+	string slash = "/";
+	string cpp = ".cpp";
+    string file_name;
+	string student_name = "test";
+
+	int index = path.find_last_of(slash);
+	student_name = path.substr(index+1,path.length()-1);
+	student_name += cpp;	
+
+    path += slash;
+
+	//cout << "looking for " << student_name <<" in " <<get_pathname();
+
+    if ((dp = opendir(path.c_str())) == NULL) 
+    {
+        cout << "Error opening directory...\n";
+        return;
+    } 
+    else 
+    {
+        //cout << "files in: " << path << "\n";
+        while ((dirp = readdir(dp)) != NULL) 
+        {
+            if (dirp->d_name != string(".") && dirp->d_name != string("..")) 
+            {
+                if (is_dir(path + dirp->d_name) == false)       //NOT a directory
+                {
+                    file_name =  dirp->d_name;
+                    //string ext (file_name.end()-4, file_name.end());    //get ext
+                    if(file_name == student_name)                         //check if it's a .cpp
+                    {
+						//cout << " found " << file_name;
                         //cout << file_name << "\n";
                         source_file = file_name;                  //add .cpp file name to queue
                     }
@@ -724,7 +795,9 @@ void queue_test_cases(queue<string>& queue)
     DIR *dp;
     struct dirent *dirp;
     string path(get_pathname());
-    path += "/";
+	string slash = "/";
+    path += slash;
+	string new_path = path;
     string file_name;
 
     if ((dp = opendir(path.c_str())) == NULL) 
@@ -737,6 +810,7 @@ void queue_test_cases(queue<string>& queue)
         //cout << "files in: " << path << "\n";
         while ((dirp = readdir(dp)) != NULL) 
         {
+			new_path = path;
             if (dirp->d_name != string(".") && dirp->d_name != string("..")) 
             {
                 if (is_dir(path + dirp->d_name) == false)       //NOT a directory
@@ -745,8 +819,9 @@ void queue_test_cases(queue<string>& queue)
                     string ext (file_name.end()-4, file_name.end());    //get ext
                     if(ext.compare(".tst") == 0)                         //check if it's a .tst
                     {
+						new_path += file_name;
                         //cout << file_name << "\n";
-                        queue.push(file_name);                  //add .tst file name to queue
+                        queue.push(new_path);                  //add .tst file name to queue
                     }
                 }
             }
