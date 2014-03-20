@@ -863,7 +863,7 @@ void vector_test_cases(vector<string>& case_vector, vector<string> &crit_vector)
                         // if either the dot or underscore is not found, then the test case file
                         // is not a critical test case
                         if( under_score >= 0 && dot >= 0 )
-                            crit = file_name.substr(under_score, dot);
+                            crit = file_name.substr(under_score, 6);
 
                         else
                             crit = "";
@@ -880,6 +880,7 @@ void vector_test_cases(vector<string>& case_vector, vector<string> &crit_vector)
         }
         closedir(dp);
     }
+    cout << "crit size: " << crit_vector.size() << endl;
 }
 
 /**************************************************************************//**
