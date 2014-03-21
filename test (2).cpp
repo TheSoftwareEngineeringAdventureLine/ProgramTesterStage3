@@ -1302,4 +1302,85 @@ void dir_list()
     cout << "\n";
 }
 
+/**************************************************************************//**
+ * @author James Tillma
+ *
+ * @par Description
+ * This function handles the generating of a number of test cases. It handles
+ * everything associated with this including: getting user options, creating
+ * the test output files, compiling the "golden.cpp" file and creating the
+ * solutions files associated with each test case. Not that the number,
+ * type, and a range for the values to be generated are all scpecified by user
+ * console input.
+ *
+ * @param[in] testPath - contains the path to store the test and solution files
+ * @param[in] goldenName - contains the name (including extension) for the
+ *						   valid cpp file
+ *
+ * @returns None
+ *****************************************************************************/
+void generateFiles(string testPath, string goldenName)
+{
+	const string integer = "int";
+	const string floating = "float";
+	string type, compileCommand, tempPath;
+	string generatedNameBase = "GENERATED_TEST_FILE_";
+	string tst = ".tst";
+	string ans = ".ans";
+	int min, max, numCases, numFiles;
+	char temp[6];
+	ofstream testFout;
+	float tempRand;
+	ostringstream convert;
 
+	cout << "Choose a type of test case, \"int\" or \"float\":" << endl;
+	do
+	{
+		cin.getline(temp, 6);
+		type = temp;
+		if( type != integer && type != floating )
+		{
+			cout << "Enter either \"int\" or \"float\" to use as the type for test cases: " << endl;
+		}
+	} while (type != integer && type != floating );
+
+	cout<< "Enter a number of test cases to use per file: " << endl;
+	cin >> numCases;
+
+	cout<< "Enter the minimum value to use in test-case creation: " << endl;
+	cin >> min;
+
+	cout << "Enter the maximum value to use in test-case creation: " << endl;
+	do
+	{
+		cin >> max;
+		if( max <= min )
+		{
+			cout << "The maximum must be greater than the minimum, re-enter the maximum: " << endl;
+		}
+	} while ( max <= min );
+
+	cout << "Enter the number of test case files to create: " << endl;
+	cin >> numFiles;
+
+	srand(time(NULL));
+
+	for( int i = 0; i < numFiles; i++)
+	{ 
+		convert << i;
+		tempPath = testPath + generatedNameBase + convert.str() + tst;
+		testFout.open( tempPath.c_str() );
+		for( int j = 0; j < numCases; j++ )
+		{
+			while ( type == floating && tempRand == 0)
+			{
+				tempRand = float(rand()) / RAND_MAX;
+				if ( tempRand == 1)
+					tempRand--;
+			}
+			testFout << tempRand + (rand() % (min - max) + min);
+		}
+		convert.str("");
+		run_file(goldenName, tempPath);
+	}
+}
