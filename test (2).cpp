@@ -160,6 +160,7 @@ string timestamp();
 string str_replace(string str, char a, char b);
 string student_log_file(string source);
 string student_name(string source);
+string format_argv(char *argv);
 
 /*Not used in Sprint 1*/
 bool event_loop();
@@ -184,7 +185,7 @@ int main(int argc, char ** argv)
     if(argc > 1)
     {
         cout << "testing " << argv[1] << "...\n" ;
-        test_loop(argv[1]);
+        test_loop(format_argv( argv[1] ));
     }
     else
         err_usage();
@@ -252,13 +253,37 @@ int run_file(string cpp_file, string test_case) //case_num
     string buffer3(" > ");
 
     // "try using | "
-    //construct run command, then send to system
+    //construct run command, then send to system 
     //./<filename> &> /dev/null  < case_x.tst > case_x.out
     buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
     system(buffer1.c_str());
 
     //0 = Fail, 1 = Pass
     return result_compare(test_case);
+}
+
+/**************************************************************************//**
+ * @author Benjamin Sherman
+ *
+ * @par Description:
+ * This function is given the commandline argument and removes any appending
+ * slash. It returns the argument as a c++ string.
+ *
+ * @param[in] argv - commandline argument
+ *
+ * @returns class_folder - properly formatted commandline argument
+ *
+ *****************************************************************************/
+string format_argv(char *argv)
+{
+    string class_folder = argv;
+    char last_char = class_folder[class_folder.length() - 1];
+    if(last_char == '/')
+        class_folder = class_folder.substr(0, class_folder.length() - 1);
+
+    return class_folder;
+    
+
 }
 
 /**************************************************************************//**
@@ -293,7 +318,7 @@ int run_file(string cpp_file, string test_case) //case_num
  * @returns none
  *
  *****************************************************************************/
-bool test_loop(string cpp_file)
+bool test_loop(string class_folder)
 {
     int test_cases_temp = 0;
     int test_cases_total = 0;
@@ -302,7 +327,7 @@ bool test_loop(string cpp_file)
     bool passed;
 
     ofstream fout, student_fout;
-    string log_name(log_filename(cpp_file));
+    string log_name(log_filename(class_folder));
     string golden_name;  						//if there is a .cpp, golden exists
     string golden_dir;	//if golden.cpp exists it exists in golden_dir
     string student_logname;
@@ -317,18 +342,19 @@ bool test_loop(string cpp_file)
 
     string subpath(get_pathname() + "/");   //create a string with current directory path
 
-    string progpath(get_pathname() + "/" + cpp_file + "/"); //string with path to prog file
+    string progpath(get_pathname() + "/" + class_folder + "/"); //string with path to prog file
 
-    golden_dir = homepath + cpp_file;	//create path to find golden.cpp
+    golden_dir = homepath + class_folder;	//create path to find golden.cpp
     //golden = true if golden.cpp exists, golden.cpp filename will be golden_name
     bool golden = isGolden(golden_name, golden_dir, get_pathname());
 
     //call James' function here!
 
-    vector_directories(cpp_file, sub_dir);   //place all subdirectory names in vector
-
+    vector_directories(class_folder, sub_dir);   //place all subdirectory names in vector
+    cout << homepath << "    " << log_name << endl;
+    cout << class_folder << endl;
     //Open summary log file
-    fout.open((homepath + log_name).c_str());    //open file
+    fout.open((homepath + class_folder + "/" + log_name).c_str());    //open file
 
     //use this to find all the students source code, the path to the source code,
     // and the test files.. run the tests elsewhere.
@@ -908,7 +934,6 @@ void vector_test_cases(vector<string>& case_vector, vector<string> &crit_vector)
         }
         closedir(dp);
     }
-    cout << "crit size: " << crit_vector.size() << endl;
 }
 
 /**************************************************************************//**
