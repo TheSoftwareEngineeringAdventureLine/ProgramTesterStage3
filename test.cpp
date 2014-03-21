@@ -139,11 +139,13 @@ void queue_test_cases(queue<string>& queue);
 void get_source(string& source_file);
 void student_source (queue<string>& source, string new_dir,string home,
 	queue<string>& source_path);
+void get_golden(string& source_file);
 
 /*Log files and Grade calculations*/
 string log_filename(string cpp_file);
 double grade_percent(int right, int total);
 string grade_letter(double grade_percent);
+void generateFiles(string testPath, string goldenName);
 
 /*Usage Statements*/
 void usage();
@@ -304,21 +306,18 @@ bool test_loop(string cpp_file)
 	queue<string> _source;					//student source code in the directory
 	queue<string> source_paths;				//path to student source code
 
-    queue_directories(cpp_file, sub_dir);   //place all subdirectory names in queue
-
     string homepath(get_pathname() + "/");  //create string with home path name
-	
     string subpath(get_pathname() + "/");   //create a string with current directory path
-
     string progpath(get_pathname() + "/" + cpp_file + "/"); //string with path to prog file
-
-
-    //Open file
-    fout.open((homepath + log_name).c_str(), ofstream::out);    //open file
 
 	golden_dir = homepath + cpp_file;	//create path to find golden.cpp
 	//golden = true if golden.cpp exists, golden.cpp filename will be golden_name
 	bool golden = isGolden(golden_name, golden_dir, get_pathname());	
+
+    queue_directories(cpp_file, sub_dir);   //place all subdirectory names in queue
+
+    //Open file
+    fout.open((homepath + log_name).c_str(), ofstream::out);    //open file
 
 	//use this to find all the students source code, the path to the source code, 
 	// and the test files.. run the tests elsewhere.
@@ -424,16 +423,22 @@ bool test_loop(string cpp_file)
     return true;
 }
 
-/******************************************************************************
-* Author: Anthony Morast, James Thilma, Ben Sherman
-*
-* This function changes into the student directory and finds the .cpp source
-* code for that student. The source code file name is pushed onto the source
-* queue and the path to the source code is pushed onto the source_paths queue.
-* The function switches back into the home directory once the source code is
-* found.  
-*
-******************************************************************************/
+/**************************************************************************//**
+ * @author Anthony Morast
+ *
+ * @par Description
+ * This function fills a queue with the source code for each student in the 
+ * grading directory. Another queue is used to store the paths to each students
+ * source code. This is obviously set up in such a way that the position in
+ * both queues correspond to the same student. 
+ *
+ * @param[in] queue source: stores name of the students source code
+ * @param[in] string new_dir: directory to move into to look for student code
+ * @param[in] string home: home directory, switch back at the end 
+ * @param[in] queue source_paths: path to each students source code 
+ *
+ * @returns None
+ *****************************************************************************/
 void student_source (queue<string>& source, string new_dir,string home,
 	queue<string>& source_paths)
 {
@@ -445,26 +450,41 @@ void student_source (queue<string>& source, string new_dir,string home,
 	string path = get_pathname();
 	
 	get_source(source_file);	//find the .cpp source file
-	source.push(source_file);	//queue the source file
-
-	source_paths.push(path);	//queue the path
-		
+	if ( source_file.find(".cpp") != -1 )
+	{	
+		source.push(source_file);	//queue the source file
+		source_paths.push(path);	//queue the path
+	}
+	
 	//switch to home directory
 	change_dir(home);	
 }
 
-/******************************************************************************
-*
-*
-*
-******************************************************************************/
+/**************************************************************************//**
+ * @author Anthony Morast
+ *
+ * @par Description
+ * This function determines whether or not a .cpp file exists in the home 
+ * directory. If there is a .cpp file in the home directory this is deemed the
+ * golden cpp. The name of the golden.cpp file, the path to the file, and a 
+ * boolean to determine whether or not the .cpp is there are "returned" from 
+ * this function.
+ *
+ * @param[in] golden_name: holds the name of the golden.cpp file 
+ * @param[in] path: path to change into, should be directory with student
+ *					directories,test directories, etc.
+ * @param[in] home: home directory, switch back to at end.
+ *
+ * @returns true: there is a golden.cpp file
+ * @returns			false: there is not a golden.cpp file
+ *****************************************************************************/
 bool isGolden(string& golden_name, string path, string home)
 {
 	string name;
 
 	change_dir(path); //change into directory
 
-	get_source(name); //determine if there's a .cpp file
+	get_golden(name); //determine if there's a .cpp file
 	
 	if (name.length() > 0)	//if there is a .cpp file
 	{
@@ -621,21 +641,29 @@ bool is_dir(string dir)
     else 
         return false;
 }
-/******************************************************************************
-*
-*
-*
-*
-*
-******************************************************************************/
-void get_source(string& source_file)
+
+/**************************************************************************//**
+ * @author Anthony Morast
+ *
+ * @par Description
+ * This function walks through the root directory and determines if there is
+ * a .cpp file in the directory. If there is it is returned to the isGolden
+ * function via source_file. 
+ *
+ * @param[in] source_file - stores the name of the cpp source file found 
+ *
+ * @returns None
+ *****************************************************************************/
+void get_golden(string& source_file)
 {
     DIR *dp;
     struct dirent *dirp;
     string path(get_pathname());
-    path += "/";
+	string slash = "/";
+    path += slash;
+	string cpp = ".cpp";
     string file_name;
-
+	
     if ((dp = opendir(path.c_str())) == NULL) 
     {
         cout << "Error opening directory...\n";
@@ -654,6 +682,65 @@ void get_source(string& source_file)
                     string ext (file_name.end()-4, file_name.end());    //get ext
                     if(ext.compare(".cpp") == 0)                         //check if it's a .cpp
                     {
+                        //cout << file_name << "\n";
+                        source_file = file_name;                  //add .cpp file name to queue
+                    }
+                }
+            }
+        }
+        closedir(dp);
+    }
+}
+/**************************************************************************//**
+ * @author Anthony Morast
+ *
+ * @par Description
+ * This function walks through each directory and determines if there is a .cpp
+ * file named after the name of the directoty. If so this is a student's
+ * directory. The cpp file is set to source_file and returned to get source
+ * to be queued.  
+ *
+ * @param[in] source_file - stores the name of the cpp source file found 
+ *
+ * @returns None
+ *****************************************************************************/
+void get_source(string& source_file)
+{
+    DIR *dp;
+    struct dirent *dirp;
+    string path(get_pathname());
+	string slash = "/";
+	string cpp = ".cpp";
+    string file_name;
+	string student_name = "test";
+
+	int index = path.find_last_of(slash);
+	student_name = path.substr(index+1,path.length()-1);
+	student_name += cpp;	
+
+    path += slash;
+
+	//cout << "looking for " << student_name <<" in " <<get_pathname();
+
+    if ((dp = opendir(path.c_str())) == NULL) 
+    {
+        cout << "Error opening directory...\n";
+        return;
+    } 
+    else 
+    {
+        //cout << "files in: " << path << "\n";
+        while ((dirp = readdir(dp)) != NULL) 
+        {
+            if (dirp->d_name != string(".") && dirp->d_name != string("..")) 
+            {
+                if (is_dir(path + dirp->d_name) == false)       //NOT a directory
+                {
+                    file_name =  dirp->d_name;
+                    //string ext (file_name.end()-4, file_name.end());    //get ext
+                    if(file_name == student_name)                         //check if it's a .cpp
+                    {
+						//cout << " found " << file_name;
                         //cout << file_name << "\n";
                         source_file = file_name;                  //add .cpp file name to queue
                     }
@@ -1180,6 +1267,10 @@ void generateFiles(string testPath, string goldenName)
 
 	srand(time(NULL));
 	compile_file(goldenName);
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/Anthony
 	for( int i = 0; i < numFiles; i++)
 	{ 
 		tempPath = testPath + generatedNameBase + to_string(i) + tst;
@@ -1195,6 +1286,10 @@ void generateFiles(string testPath, string goldenName)
 			}
 			testFout << tempRand + (rand() % (min - max) + min);
 		}
+<<<<<<< HEAD
 		run_file(goldenName, tempName)
+=======
+		run_file(goldenName, tempName);
+>>>>>>> origin/Anthony
 	}
 }
