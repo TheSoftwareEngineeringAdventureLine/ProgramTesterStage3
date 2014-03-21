@@ -314,6 +314,10 @@ bool test_loop(string cpp_file)
 	//golden = true if golden.cpp exists, golden.cpp filename will be golden_name
 	bool golden = isGolden(golden_name, golden_dir, get_pathname());	
 
+
+    if (golden)
+        generateFiles(golden_dir, golden_name)
+
     queue_directories(cpp_file, sub_dir);   //place all subdirectory names in queue
 
     //Open file
@@ -478,7 +482,7 @@ void student_source (queue<string>& source, string new_dir,string home,
  * @returns true: there is a golden.cpp file
  * @returns			false: there is not a golden.cpp file
  *****************************************************************************/
-bool isGolden(string& golden_name, string path, string home)
+bool isGolden(string& golden_name, string& path, string home)
 {
 	string name;
 
@@ -489,6 +493,7 @@ bool isGolden(string& golden_name, string path, string home)
 	if (name.length() > 0)	//if there is a .cpp file
 	{
 		golden_name = name;		//set golden name to the .cpp file name
+        path = get_pathname();  //pat to golden.cpp..........
 		change_dir(home);	//change back to home directory
 		return true;
 	}
@@ -616,7 +621,7 @@ bool change_dir(string dir_name)
     {
         path = get_pathname();
         //cout << "In " << path << "\n";
-        return true;
+        return true;generateFiles(string testPath, string goldenName)
     }
     return false;
 }
