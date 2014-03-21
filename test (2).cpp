@@ -5,9 +5,9 @@
  *
  * @section course_section CSC 470
  *
- * @author Julian Brackins, Jon Dixon, and Hafiza Farzami
+ * @author Ben Sherman, James Tillma, Anthony Morast
  *
- * @date February 9, 2014
+ * @date March 23,2014
  *
  * @par Professor:
  *         Dr. Logar
@@ -21,14 +21,7 @@
  * @section program_section Program Information
  *
  * @details
- * test.cpp is a testing suite designed for 150/250/300 level c++ file
- * testing. The application is meant to compile and run c++ files, using
- * test cases supplied in the same directory as the .cpp file, or nested in
- * subdirectories under the same directory where the .cpp file is located.
- * The test application will run the compiled program, using all available test
- * cases found in subdirectories, and will keep record of the success or failure
- * of each test case. An overall grade will be assigned to the program based on
- * how many test cases are passed.
+ * test.cpp 
  *
  * @section compile_section Compiling and Usage
  *
@@ -37,16 +30,11 @@
  *
  * @par Usage:
    @verbatim
-   ./test <file>
+   ./test <directory>
 
-   NOTE that the <file> should be in a folder with the same name as the .cpp
-   file you wish to compile and run. the folder should be in the same directory
-   as the test application.
-   Example
-   in /home directory:
-      test example
-   in /home/example directory:
-      example.cpp
+	NOTE: <directory> should be a directory containing student source code and 
+	.tst and .ans files.
+ 
    @endverbatim
  *
  * @section todo_bugs_modification_section Todo, Bugs, and Modifications
@@ -59,34 +47,7 @@
    @verbatim
    Date          Modification
    ------------  --------------------------------------------------------------
-   Feb 09, 2014  Implemented compile_file(), started run_file(). also created
-                 add_extension() to handle removing extensions from .cpp files
-   Feb 11, 2014  Set up GitHub. http clone url:
-                 https://github.com/jbrackins/CSC470.git
-   Feb 12, 2014  printed usage, revamping program structure to handle commands
-                 within the software rather than via command line
-                 made routine to count the number of .tst files in directory
-   Feb 13, 2014  run_file() now redirects input such that case_x.tst is read
-                 in as the commands for the test and case_x.out is the result
-                 from forementioned test.
-                 run_file() now returns integer, 1 if it passes a test case,
-                 0 if it fails
-                 test_loop() runs through each test case run and tallies how
-                 many were successes
-                 is_dir() detects if object in directory is a directory
-                 vector_directories() recursively traverses a folder system and
-                 utilizes is_dir() to find all subdirectories. Each of these
-                 subdirectories found is pushed into a vector.
-                 Subdirectory traversal ((((should)))) be complete.
-   Feb 14, 2014  Code Review session with team at 3:00 PM.
-   Feb 18, 2014  Completed log file creation in test_loop()
-                 Fixed piping in run_file() to prevent output to terminal.
-                 Renamed file to test.cpp (orignally grade.cpp)
-                 Implemented error handing and modified usage statement
-                 User Interface from event_loop() removed, now simply takes in
-                 file to be tested via command line.
-   Feb 19, 2014  Revamped function order for a more logical grouping in file.
-                 Final documentation in preparation for submission.
+
    @endverbatim
  *
  *****************************************************************************/
@@ -339,16 +300,17 @@ bool test_loop(string class_folder)
     vector<string> crit_cases;
 
     string homepath(get_pathname() + "/");  //create string with home path name
-
     string subpath(get_pathname() + "/");   //create a string with current directory path
-
     string progpath(get_pathname() + "/" + class_folder + "/"); //string with path to prog file
+
 
     golden_dir = homepath + class_folder;	//create path to find golden.cpp
     //golden = true if golden.cpp exists, golden.cpp filename will be golden_name
     bool golden = isGolden(golden_name, golden_dir, get_pathname());
 
     //call James' function here!
+	if (golden)
+    	generateFiles(golden_dir, golden_name);
 
     vector_directories(class_folder, sub_dir);   //place all subdirectory names in vector
     cout << homepath << "    " << log_name << endl;
@@ -517,61 +479,80 @@ bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream 
     }
     return passed;
 }
-
-/******************************************************************************
-* Author: Anthony Morast, James Thilma, Ben Sherman
-*
-* This function changes into the student directory and finds the .cpp source
-* code for that student. The source code file name is pushed onto the source
-* vector and the path to the source code is pushed onto the source_paths vector.
-* The function switches back into the home directory once the source code is
-* found.
-*
-******************************************************************************/
+/**************************************************************************//**
+ * @author Anthony Morast
+ *
+ * @par Description
+ * This function fills a vector with the source code for each student in the 
+ * grading directory. Another vector is used to store the paths to each students
+ * source code. This is obviously set up in such a way that the position in
+ * both vectors correspond to the same student. 
+ *
+ * @param[in] vector source: stores name of the students source code
+ * @param[in] string new_dir: directory to move into to look for student code
+ * @param[in] string home: home directory, switch back at the end 
+ * @param[in] vector source_paths: path to each students source code 
+ *
+ * @returns None
+ *****************************************************************************/
 void student_source (vector<string>& source, string new_dir,string home,
-                     vector<string>& source_paths)
+	vector<string>& source_paths)
 {
-    //if the sub_dir belongs to a student, switch into that directory
-    string source_file;
-    change_dir(new_dir);
-
-    //gets the current path
-    string path = get_pathname();
-
-    get_source(source_file);	//find the .cpp source file
-    if ( source_file.find(".cpp") != -1 )
-    {
-        source.push_back(source_file);	//vector the source file
-        source_paths.push_back(path);	//vector the path
-    }
-
-    //switch to home directory
-    change_dir(home);
+	//if the sub_dir belongs to a student, switch into that directory
+	string source_file;
+	change_dir(new_dir);
+	
+	//gets the current path
+	string path = get_pathname();
+	
+	get_source(source_file);	//find the .cpp source file
+	if ( source_file.find(".cpp") != -1 )
+	{	
+		source. _back(source_file);	//vector the source file
+		source_paths.push_back(path);	//vector the path
+	}
+	
+	//switch to home directory
+	change_dir(home);	
 }
 
-/******************************************************************************
-*
-*
-*
-******************************************************************************/
-bool isGolden(string& golden_name, string path, string home)
+/**************************************************************************//**
+ * @author Anthony Morast
+ *
+ * @par Description
+ * This function determines whether or not a .cpp file exists in the home 
+ * directory. If there is a .cpp file in the home directory this is deemed the
+ * golden cpp. The name of the golden.cpp file, the path to the file, and a 
+ * boolean to determine whether or not the .cpp is there are "returned" from 
+ * this function.
+ *
+ * @param[in] golden_name: holds the name of the golden.cpp file 
+ * @param[in] path: path to change into, should be directory with student
+ *					directories,test directories, etc.
+ * @param[in] home: home directory, switch back to at end.
+ *
+ * @returns true: there is a golden.cpp file
+ * @returns			false: there is not a golden.cpp file
+ *****************************************************************************/
+bool isGolden(string& golden_name, string& path, string home)
 {
-    string name;
+	string name;
 
-    change_dir(path); //change into directory
+	change_dir(path); //change into directory
 
-    get_golden(name); //determine if there's a .cpp file
+	get_golden(name); //determine if there's a .cpp file
+	
+	if (name.length() > 0)	//if there is a .cpp file
+	{
+		golden_name = name;		//set golden name to the .cpp file name
+        path = get_pathname();  //pat to golden.cpp..........
+		change_dir(home);	//change back to home directory
+		return true;
+	}
 
-    if (name.length() > 0)	//if there is a .cpp file
-    {
-        golden_name = name;		//set golden name to the .cpp file name
-        change_dir(home);	//change back to home directory
-        return true;
-    }
+	change_dir(home);	//change back to home dir
 
-    change_dir(home);	//change back to home dir
-
-    return false;  //otherwise return false
+	return false;  //otherwise return false
 }
 
 /**************************************************************************//**
@@ -717,33 +698,39 @@ bool is_dir(string dir)
         return false;
 }
 
-/******************************************************************************
-*
-*
-*
-*
-*
-******************************************************************************/
+/**************************************************************************//**
+ * @author Anthony Morast
+ *
+ * @par Description
+ * This function walks through the root directory and determines if there is
+ * a .cpp file in the directory. If there is it is returned to the isGolden
+ * function via source_file. 
+ *
+ * @param[in] source_file - stores the name of the cpp source file found 
+ *
+ * @returns None
+ *****************************************************************************/
 void get_golden(string& source_file)
 {
     DIR *dp;
     struct dirent *dirp;
     string path(get_pathname());
-    string slash = "/";
+	string slash = "/";
     path += slash;
-    string cpp = ".cpp";
+	string cpp = ".cpp";
     string file_name;
-    if ((dp = opendir(path.c_str())) == NULL)
+	
+    if ((dp = opendir(path.c_str())) == NULL) 
     {
         cout << "Error opening directory...\n";
         return;
-    }
-    else
+    } 
+    else 
     {
         //cout << "files in: " << path << "\n";
-        while ((dirp = readdir(dp)) != NULL)
+        while ((dirp = readdir(dp)) != NULL) 
         {
-            if (dirp->d_name != string(".") && dirp->d_name != string(".."))
+            if (dirp->d_name != string(".") && dirp->d_name != string("..")) 
             {
                 if (is_dir(path + dirp->d_name) == false)       //NOT a directory
                 {
@@ -760,42 +747,48 @@ void get_golden(string& source_file)
         closedir(dp);
     }
 }
-/******************************************************************************
-*
-*
-*
-*
-*
-******************************************************************************/
+/**************************************************************************//**
+ * @author Anthony Morast
+ *
+ * @par Description
+ * This function walks through each directory and determines if there is a .cpp
+ * file named after the name of the directoty. If so this is a student's
+ * directory. The cpp file is set to source_file and returned to get source
+ * to be vectord.  
+ *
+ * @param[in] source_file - stores the name of the cpp source file found 
+ *
+ * @returns None
+ *****************************************************************************/
 void get_source(string& source_file)
 {
     DIR *dp;
     struct dirent *dirp;
     string path(get_pathname());
-    string slash = "/";
-    string cpp = ".cpp";
+	string slash = "/";
+	string cpp = ".cpp";
     string file_name;
-    string student_name = "test";
+	string student_name = "test";
 
-    int index = path.find_last_of(slash);
-    student_name = path.substr(index+1,path.length()-1);
-    student_name += cpp;
+	int index = path.find_last_of(slash);
+	student_name = path.substr(index+1,path.length()-1);
+	student_name += cpp;	
 
     path += slash;
 
-    //cout << "looking for " << student_name <<" in " <<get_pathname();
+	//cout << "looking for " << student_name <<" in " <<get_pathname();
 
-    if ((dp = opendir(path.c_str())) == NULL)
+    if ((dp = opendir(path.c_str())) == NULL) 
     {
         cout << "Error opening directory...\n";
         return;
-    }
-    else
+    } 
+    else 
     {
         //cout << "files in: " << path << "\n";
-        while ((dirp = readdir(dp)) != NULL)
+        while ((dirp = readdir(dp)) != NULL) 
         {
-            if (dirp->d_name != string(".") && dirp->d_name != string(".."))
+            if (dirp->d_name != string(".") && dirp->d_name != string("..")) 
             {
                 if (is_dir(path + dirp->d_name) == false)       //NOT a directory
                 {
@@ -803,9 +796,9 @@ void get_source(string& source_file)
                     //string ext (file_name.end()-4, file_name.end());    //get ext
                     if(file_name == student_name)                         //check if it's a .cpp
                     {
-                        //cout << " found " << file_name;
+						//cout << " found " << file_name;
                         //cout << file_name << "\n";
-                        source_file = file_name;                  //add .cpp file name to vector
+                        source_file = file_name;                  //add .cpp file name to queue
                     }
                 }
             }

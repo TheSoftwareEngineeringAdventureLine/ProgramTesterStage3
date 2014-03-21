@@ -318,7 +318,7 @@ bool test_loop(string cpp_file)
     if (golden)
         generateFiles(golden_dir, golden_name)
 
-    queue_directories(cpp_file, sub_dir);   //place all subdirectory names in queue
+    vector_directories(cpp_file, sub_dir);   //place all subdirectory names in queue
 
     //Open file
     fout.open((homepath + log_name).c_str(), ofstream::out);    //open file
