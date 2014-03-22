@@ -1295,7 +1295,8 @@ void dir_list()
  * the test output files, compiling the "golden.cpp" file and creating the
  * solutions files associated with each test case. Not that the number,
  * type, and a range for the values to be generated are all scpecified by user
- * console input.
+ * console input. NOTE: the atoi and atof functions can throw exceptions and
+ * they are not being handled here for the sake of readability.
  *
  * @param[in] testPath - contains the path to store the test and solution files
  * @param[in] goldenName - contains the name (including extension) for the
@@ -1314,55 +1315,62 @@ void generateFiles(string testPath, string goldenName)
     string tst = ".tst";
     string ans = ".ans";
     string toTest;
-    float min, max;
+    float min, max, tempRand;
     int numCases, numFiles;
-    char temp[6];
+    char temp[20];
     ofstream testFout;
     ifstream openTest;
-    float tempRand;
     ostringstream convert;
 
     compile_file(goldenName);
+    //get the type of case to generate
     cout << "Choose a type of test case, \"int\" or \"float\":" << endl;
     do
     {
-        cin.getline(temp, 6);
+        cin.getline(temp, 100);
         type = temp;
         if( type != integer && type != floating )
-        {
             cout << "Enter either \"int\" or \"float\" to use as the type for test cases: " << endl;
-        }
     } while (type != integer && type != floating );
-
+    //get the number of cases to generate per file (will truncate to integer)
     cout<< "Enter a number of test cases to use per file: " << endl;
-    cin >> numCases;
-
+    do
+    {
+        cin.getline(temp, 100);
+        numCases = atoi(temp);
+        if( numCases <= 0 )
+        {
+            cout << "The number of cases to generate per file must be greater than zero: " <<endl;
+        }
+    } while ( numCases <= 0);
+    //get the minimum value to use in test-case creation
     cout<< "Enter the minimum value to use in test-case creation: " << endl;
-    cin >> min;
-
+    cin.getline(temp, 100);
+    min = atof(temp);
+    //get the maximum value to use in test-case creation
     cout << "Enter the maximum value to use in test-case creation: " << endl;
     do
     {
-        cin >> max;
+		cin.getline(temp, 100);
+        max = atof(temp);
         if( max <= min )
-        {
             cout << "The maximum must be greater than the minimum, re-enter the maximum: " << endl;
-        }
     } while ( max <= min );
-
+    //get the number of test-case files to create (will be truncated to integer)
     cout << "Enter the number of test case files to create: " << endl;
-    cin >> numFiles;
+    cin.getline(temp, 100);
+    max = atoi(temp);
 
     srand(time(NULL));
-
+    //create the test and answer files
     for( int i = 0; i < numFiles; i++)
-    {
+    {   //convert counter i to a string, add it to the path for the file (be careful, this section is very finicky)
         convert << i;
         tempPath = testPath + generatedNameBase + convert.str();
         toTest = tempPath;
         toTest += tst;
+        // the following block handles naming conflicts
         openTest.open( toTest.c_str() );
-        // this handles naming conflicts
         if(openTest)
         {
             numFiles++;
@@ -1371,6 +1379,7 @@ void generateFiles(string testPath, string goldenName)
             continue;
         }
         openTest.close();
+        //open the file for output and output cases to it
         testFout.open( toTest.c_str() );
         for( int j = 0; j < numCases; j++ )
         {
@@ -1385,6 +1394,7 @@ void generateFiles(string testPath, string goldenName)
             else
                 testFout << rand() % (int)((min - max) + min) << endl;
         }
+        //empty the convert object, generate an answer file, and close the test 
         convert.str("");
         generate_ans(goldenName, toTest);
         testFout.close();
