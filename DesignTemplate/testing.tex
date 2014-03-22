@@ -19,5 +19,62 @@ No dependencies.
 
 
 \section{Test Setup and Execution}
-In earlier phases of the sprint, a simple “Hello World!” .cpp file was created to test the usage of system commands to compile and run a program within our testing software.
+\subsection{Student Grading}
+The student grading section involves
+\begin{itemize}
+\item Crawling through student directories.
+\item Running each students source code on the test cases.
+\end{itemize}
+The product was tested on the customer supplied example class directory and class directories where created to for further testing.
+
+\paragraph{} Below is a list of the individual directories that where used in testing as well as the difference between them that tested aspects of the product.
+
+\paragraph{Customer Test CSC\_150 Class Directory}
+This product test demonstrates the products ability to test a class without any critical test cases multiple directories. It also demonstrates automatic test case generation.
+\begin{verbatim}
+Customer Test CSC_150 Class Directory:
+  Students:
+    bad_student_1 Fails some test cases
+    bad_student_2 Fails some test cases
+    student_3 Passes all test cases
+    student_4 Passes all test cases
+    
+  Multiple directories containing tests
+  No critical test cases
+  Golden Source Code: average.cpp
+  directories containing useless files
+\end{verbatim}
+
+\paragraph{Test Directory 1}
+This created test demonstrates the products ability to fail a student if they do not pass a critical test case. It also demonstrates automatic test case generation.
+\begin{verbatim}
+Test Directory 1:
+  Students:
+    Alex_Johnson
+    Bob
+    Francis
+    John
+    
+  Critical and normal test cases
+  Golden Source Code: max_3.cpp
+\end{verbatim}
+
+\paragraph{Test Directory 2}
+This created test demonstrates the programs ability fail a student if they do not pass a critical test case; it demonstrates the ability of the product to find test cases in subdirectories; finally it demonstrates the products ability to allow test case generation only when a golden source code is available.
+\begin{verbatim}
+Test Directory 2:
+  Students:
+    student_1 Fails critical
+    student_2 Fails critical
+    student_3 Passes all test cases
+    student_4 Passes all test cases
+    student_5 Passes all test cases
+    student_6 Passes all test cases
+    student_7 Passes all test cases
+
+  Test case subdirectories
+  Critical and normal test cases
+  Golden Source Code: none
+\end{verbatim}
+
 
