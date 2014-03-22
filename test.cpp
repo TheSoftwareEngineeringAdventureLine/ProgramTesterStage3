@@ -57,7 +57,6 @@
 *********************************INCLUDES*************************************
 ******************************************************************************/
 
-#define CURR_VER "2.0"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -73,6 +72,8 @@
 #include <vector>        //
 #include <sstream>
 #include <ctime>        //Handling Timestamps
+#include "string_ops.h"
+#include "dir_traversal.h"
 
 /*************************************************************************//**
 *********************************NAMESPACE************************************
@@ -97,39 +98,8 @@ bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream 
 void generateFiles(string testPath, string goldenName);
 void generate_ans(string cpp_file, string test_case);
 
-/*Directory Traversal Code*/
-bool change_dir(string dir_name);
-bool is_dir(string dir);
-void vector_directories(string base_dir, vector<string>& vector);
-void vector_test_cases(vector<string>& case_vector, vector<string> &crit_vector);
-void get_source(string& source_file);
-void student_source (vector<string>& source, string new_dir,string home,
-                     vector<string>& source_path);
-void get_golden(string& source_file);
-
-/*Log files and Grade calculations*/
-string log_filename(string cpp_file);
+/*Grade calculation*/
 double grade_percent(int right, int total);
-string grade_letter(double grade_percent);
-
-/*Usage Statements*/
-void usage();
-void err_usage();
-
-/*Misc String Manipulations*/
-string add_extension(string input);
-string get_extension(string input);
-string get_pathname();
-string case_name(string test_case, string ext);
-string timestamp();
-string str_replace(string str, char a, char b);
-string student_log_file(string source);
-string student_name(string source);
-string format_argv(char *argv);
-
-/*Not used in Sprint 1*/
-//bool event_loop();
-void dir_list();
 
 /**************************************************************************//**
  * @authors Julian Brackins, Benjamin Sherman, James Tillma, & Anthony Morast
@@ -266,7 +236,7 @@ void generate_ans(string cpp_file, string test_case)
 
     //set up piping buffers
     string buffer1("");
-    string buffer2(" < ");// &> /dev/null < ");
+    string buffer2(" &> /dev/null < ");
     string buffer3(" > ");
 
     // "try using | "
@@ -275,29 +245,6 @@ void generate_ans(string cpp_file, string test_case)
     buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
 
     system(buffer1.c_str());
-}
-/**************************************************************************//**
- * @author Benjamin Sherman
- *
- * @par Description:
- * This function is given the commandline argument and removes any appending
- * slash. It returns the argument as a c++ string.
- *
- * @param[in] argv - commandline argument
- *
- * @returns class_folder - properly formatted commandline argument
- *
- *****************************************************************************/
-string format_argv(char *argv)
-{
-    string class_folder = argv;
-    char last_char = class_folder[class_folder.length() - 1];
-    if(last_char == '/')
-        class_folder = class_folder.substr(0, class_folder.length() - 1);
-
-    return class_folder;
-
-
 }
 
 /**************************************************************************//**
@@ -363,6 +310,11 @@ bool test_loop(string class_folder, bool generate)
         //call James' function here!
         if (golden)
             generateFiles(homepath + class_folder, golden_name);
+        else
+        {
+            cout << "\n\nNo golden.cpp found in class directory.\n\n";
+            cout << "Skipping test case generation . . .\n" << endl;
+        }
     }
 
     vector_directories(class_folder, sub_dir);   //place all subdirectory names in vector
@@ -474,23 +426,6 @@ bool test_loop(string class_folder, bool generate)
  * @author Benjamin Sherman
  *
  * @par Description:
- * The algorithm, given a students source code name, returns the name of the
- * file without the extension.
- *
- * @param[in] source - name of a student source code file
- *
- * @returns name of student source code file without extension
- *
- *****************************************************************************/
-string student_name(string source)
-{
-    return source.substr(0, source.find_last_of("."));
-}
-
-/**************************************************************************//**
- * @author Benjamin Sherman
- *
- * @par Description:
  * The algorithm, given a student source code file name and a vector of test
  * cases will test the students code on every test case in the vector.
  *
@@ -528,43 +463,6 @@ bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream 
         }
     }
     return passed;
-}
-
-/**************************************************************************//**
- * @author Anthony Morast
- *
- * @par Description
- * This function fills a vector with the source code for each student in the
- * grading directory. Another vector is used to store the paths to each students
- * source code. This is obviously set up in such a way that the position in
- * both vectors correspond to the same student.
- *
- * @param[in] vector source: stores name of the students source code
- * @param[in] string new_dir: directory to move into to look for student code
- * @param[in] string home: home directory, switch back at the end
- * @param[in] vector source_paths: path to each students source code
- *
- * @returns None
- *****************************************************************************/
-void student_source (vector<string>& source, string new_dir,string home,
-                     vector<string>& source_paths)
-{
-    //if the sub_dir belongs to a student, switch into that directory
-    string source_file;
-    change_dir(new_dir);
-
-    //gets the current path
-    string path = get_pathname();
-
-    get_source(source_file);	//find the .cpp source file
-    if ( source_file.find(".cpp") != -1 )
-    {
-        source.push_back(source_file);	//vector the source file
-        source_paths.push_back(path);	//vector the path
-    }
-
-    //switch to home directory
-    change_dir(home);
 }
 
 /**************************************************************************//**
@@ -695,283 +593,8 @@ int result_compare(string test_file)
         return 0;
 }
 
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * Directory traversal is quintessential in this program in order to find all
- * available test cases for a given program. change_dir() is the heart of the
- * traversal functions designed for this project.
- * It should be noted that most path names read in here should be the full
- * path name to avoid getting stuck in deep-nested directories. Using the full
- * path will allow the program to change to a specific directory, rather than
- * be restricted to the sub directories present in the current path.
- * Regardless, the function returns a boolean value to indicate whether or not
- * the directory change was successful.
- *
- * @param[in] dir_name - full path of a directory
- *
- * @returns true - successful directory change
- * @returns false - failed to change directories
- *
- *****************************************************************************/
-bool change_dir(string dir_name)
-{
-    string path;
-    if(chdir(dir_name.c_str()) == 0)
-    {
-        path = get_pathname();
-        //cout << "In " << path << "\n";
-        return true;
-    }
-    return false;
-}
 
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * Small function to determine if an object in a directory is a directory
- * itself.
- *
- * @returns true - is a dir
- * @returns false - is not a dir (probably a file)
- *
- *****************************************************************************/
-bool is_dir(string dir)
-{
-    struct stat file_info;
-    stat(dir.c_str(), &file_info);
-    if ( S_ISDIR(file_info.st_mode) )
-        return true;
-    else
-        return false;
-}
 
-/**************************************************************************//**
- * @author Anthony Morast
- *
- * @par Description
- * This function walks through the root directory and determines if there is
- * a .cpp file in the directory. If there is it is returned to the isGolden
- * function via source_file.
- *
- * @param[in] source_file - stores the name of the cpp source file found
- *
- * @returns None
- *****************************************************************************/
-void get_golden(string& source_file)
-{
-    DIR *dp;
-    struct dirent *dirp;
-    string path(get_pathname());
-    string slash = "/";
-    path += slash;
-    string cpp = ".cpp";
-    string file_name;
-
-    if ((dp = opendir(path.c_str())) == NULL)
-    {
-        cout << "Error opening directory...\n";
-        return;
-    }
-    else
-    {
-        //cout << "files in: " << path << "\n";
-        while ((dirp = readdir(dp)) != NULL)
-        {
-            if (dirp->d_name != string(".") && dirp->d_name != string(".."))
-            {
-                if (is_dir(path + dirp->d_name) == false)    //NOT a directory
-                {
-                    file_name =  dirp->d_name;
-                    string ext (file_name.end()-4, file_name.end());//get ext
-                    if(ext.compare(".cpp") == 0)        //check if it's a .cpp
-                    {
-                        //cout << file_name << "\n";
-                        source_file = file_name; //add .cpp file name to vector
-                    }
-                }
-            }
-        }
-        closedir(dp);
-    }
-}
-/**************************************************************************//**
- * @author Anthony Morast
- *
- * @par Description
- * This function walks through each directory and determines if there is a .cpp
- * file named after the name of the directoty. If so this is a student's
- * directory. The cpp file is set to source_file and returned to get source
- * to be queued.
- *
- * @param[in] source_file - stores the name of the cpp source file found
- *
- * @returns None
- *****************************************************************************/
-void get_source(string& source_file)
-{
-    DIR *dp;
-    struct dirent *dirp;
-    string path(get_pathname());
-    string slash = "/";
-    string cpp = ".cpp";
-    string file_name;
-    string student_name = "test";
-
-    int index = path.find_last_of(slash);
-    student_name = path.substr(index+1,path.length()-1);
-    student_name += cpp;
-
-    path += slash;
-
-    //cout << "looking for " << student_name <<" in " <<get_pathname();
-
-    if ((dp = opendir(path.c_str())) == NULL)
-    {
-        cout << "Error opening directory...\n";
-        return;
-    }
-    else
-    {
-        //cout << "files in: " << path << "\n";
-        while ((dirp = readdir(dp)) != NULL)
-        {
-            if (dirp->d_name != string(".") && dirp->d_name != string(".."))
-            {
-                if (is_dir(path + dirp->d_name) == false)  //NOT a directory
-                {
-                    file_name =  dirp->d_name;
-                    if(file_name == student_name)     //check if it's a .cpp
-                        source_file = file_name; //add .cpp file name to queue
-                }
-            }
-        }
-        closedir(dp);
-    }
-}
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * Recursively traverse the directory structure, adding the name of each
- * subdirectory to a vector. These subdirectories are the test suites, which
- * will later be referenced to run the corresponding program against each
- * test case in the subdirectory.
- *
- * @param[in] test_file - the base directory
- * @param[in,out] vector - subdirectory vector.
- *
- * @returns none
- *
- *****************************************************************************/
-void vector_directories(string base_dir, vector<string>& vector)
-{
-    DIR *dp;
-    struct dirent *dirp;
-    string path;
-
-    string dir_name(base_dir);
-
-    base_dir += "/";
-    if ((dp = opendir(base_dir.c_str())) == NULL)
-    {
-        cout << "\nError opening subdirectories...\n";
-        return;
-    }
-    else
-    {
-        while ((dirp = readdir(dp)) != NULL)
-        {
-            if (dirp->d_name != string(".") && dirp->d_name != string(".."))
-            {
-                //it's a directory
-                if (is_dir(base_dir + dirp->d_name) == true)
-                {
-                    path = base_dir + dirp->d_name + "/";
-                    vector.push_back(path);     //push string into vector
-                    //recursion!!
-                    vector_directories(base_dir + dirp->d_name, vector);
-                }
-            }
-        }
-        closedir(dp);
-    }
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * Traverse the directory, adding the name of each test case to a vector.
- * These vectord test cases will later be referenced to run the corresponding
- * program against each test case in the directory.
- * A modified version of vector_directories(), this version points to each
- * object in the directory and determines if each one is a file, rather than a
- * directory. From there, if the file contains the .tst extension, it is added
- * to the vector. No recursion in this one, since and individual test case vector
- * is built for each sub directory.
- *
- * @param[in,out] vector - test case vector.
- *
- * @returns none
- *
- *****************************************************************************/
-void vector_test_cases(vector<string>& case_vector, vector<string> &crit_vector)
-{
-    DIR *dp;
-    struct dirent *dirp;
-    string path(get_pathname());
-    string slash = "/";
-    path += slash;
-    string new_path = path;
-    string file_name, crit;
-    int under_score, dot;
-
-    if ((dp = opendir(path.c_str())) == NULL)
-    {
-        cout << "Error opening directory...\n";
-        return;
-    }
-    else
-    {
-        while ((dirp = readdir(dp)) != NULL)
-        {
-            new_path = path;
-            if (dirp->d_name != string(".") && dirp->d_name != string(".."))
-            {
-                if (is_dir(path + dirp->d_name) == false)   //NOT a directory
-                {
-                    file_name =  dirp->d_name;
-                    string ext (file_name.end()-4, file_name.end());  //get ext
-                    if(ext.compare(".tst") == 0)    //check if it's a .tst
-                    {
-                        new_path += file_name;
-                        // get position fo last dot and alst underscore int eh filename path
-                        under_score = file_name.find_last_of( '_' );
-                        dot = file_name.find_last_of( '.' );
-
-                        // if either the dot or underscore is not found, then the test case file
-                        // is not a critical test case
-                        if( under_score >= 0 && dot >= 0 )
-                            crit = file_name.substr(under_score, 6);
-
-                        else
-                            crit = "";
-
-                        if(crit.compare("_crit.") == 0)
-                            crit_vector.push_back(new_path);
-                        else
-                            case_vector.push_back(new_path);  //add .tst file name to vector
-
-                    }
-                }
-            }
-        }
-        closedir(dp);
-    }
-}
 
 /**************************************************************************//**
  * @author Julian Brackins
@@ -1006,284 +629,6 @@ string log_filename(string cpp_file)
 double grade_percent(int right, int total)
 {
     return float( ( float(right) / float(total) ) * 100 );
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * A double containing the percentage of test cases correct is brought into
- * this function and a grade letter is assigned.
- *
- * @param[in] grade_percent - percent of test cases passed
- *
- * @returns letter - Letter grade
- *
- *****************************************************************************/
-string grade_letter(double grade_percent)
-{
-    string letter;
-
-    if(grade_percent >= 90.0)
-        letter = "A";
-    else if(grade_percent >= 80.0)
-        letter = "B";
-    else if(grade_percent >= 70.0)
-        letter = "C";
-    else if(grade_percent >= 60.0)
-        letter = "D";
-    else
-        letter = "F";
-    return letter;
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * Prints Software Info
- *
- * @returns none
- *
- *****************************************************************************/
-void usage()
-{
-    cout << "\n*************AUTOMATED GRADING SYSTEM*************\n";
-    cout << "*********************ver  ";
-    cout << CURR_VER << "*********************\n";
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * Prints error message
- *
- * @returns none
- *
- *****************************************************************************/
-void err_usage()
-{
-    cout << "\nAn error occurred.....\n";
-    cout << "USAGE:\n";
-    cout << "./test <class_directory> | -g";
-    cout << "                           -g will generate test cases.\n";
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * This function is needed to handle the addition of the .cpp extension on file
- * names. This is important, for example, when compiling the file, as you need
- * the full name of the file (example.cpp) as well as the name of the file sans
- * extension (example)
- *
- * @param[in] input - string containing file name
- *
- * @returns newstring - string similar to parameter input with .cpp extension
- *
- *****************************************************************************/
-string add_extension(string input)
-{
-    input.append(".cpp");
-    return input;
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * This function is needed to detect the extension on a given file. The
- * extension on the given file is returned as a string.
- * Used for detecting whether files in a directory contain a .tst extension,
- * therefore indicating that the file is a test case.
- *
- * @param[in] input - string containing file name and extension
- *
- * @returns extension - file extension
- *
- *****************************************************************************/
-string get_extension(string input)
-{
-    unsigned found = input.find_last_of(".");
-    string extension( input.substr(found+1) );
-    return extension;
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * Returns a string with the current working directory. Useful not only in
- * testing, as the directory traversal can be confusing, but is also needed to
- * pass in pathnames as parameters for other functions in the program.
- *
- *
- * @returns path - string containing the current working directory
- *
- *****************************************************************************/
-string get_pathname()
-{
-    char buffer[1024];
-    string path;
-
-    getcwd(buffer, sizeof(buffer));
-    //printf("In %s\n", buffer);
-    path = buffer;
-
-    return path;
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * String mutation to create a file of the same name, but with a different
- * extension.
- *
- * @param[in] test_case - string containing file name and extension
- * @param[in] ext - new file name extension
- *
- * @returns temp - new string with extension the same as the ext param.
- *
- *****************************************************************************/
-string case_name(string test_case, string ext)
-{
-    char buffer [20];
-    int n;
-    string temp(test_case.begin(), test_case.end()-4);
-
-    //get a new extension (brought in by second parameter)
-    if ( ext.compare("tst") == 0)
-        temp += ".tst";
-    else if ( ext.compare("ans") == 0)
-        temp += ".ans";
-    else if ( ext.compare("out") == 0)
-        temp += ".out";
-    else if ( ext.compare("tmp") == 0)
-        temp += ".tmp";
-    else if ( ext.compare("log") == 0)
-    {
-        //HANDLE TIMESTAMP
-        temp += ".log";
-    }
-    else
-        cout << "Please indicate an extension in second parameter...\n";
-    return temp;
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * Construct a string with the current date and time.
- *
- * @returns ymdt - date string with year_month_date_time format
- *
- *****************************************************************************/
-string timestamp()
-{
-    time_t now = time(0);
-    struct tm tstruct;
-    char buffer[80];
-    tstruct = *localtime(&now);
-
-    strftime(buffer, sizeof(buffer), "%Y_%m_%d_%X", &tstruct);
-
-    string ymdt( str_replace(buffer, ':', '_') );
-    return ymdt;
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * Replaces every character in a string that matches the first parameter (a)
- * with the second parameter character (b)
- *
- * @param[in] a - character to be replaced
- * @param[in] b - character to replace a
- *
- * @returns str - new string with replaced characters
- *
- *****************************************************************************/
-string str_replace(string str, char a, char b)
-{
-    for (int i = 0; i < str.length(); ++i)
-    {
-        if (str[i] == a)
-            str[i] = b;
-    }
-    return str;
-}
-
-
-
-/**************************************************************************//**
- * @author Benjamin Sherman
- *
- * @par Description:
- * The algorithm given a student source code, removes the ".cpp" extension and
- * appends ".log" extenstion. The function is used to generate a log file name
- * for each student.
- *
- * @param[in] source - name of a student source code file
- *
- * @returns name of student source code file without extension
- *
- *****************************************************************************/
-string student_log_file(string source)
-{
-    source = source.substr(0, source.find_last_of("."));
-    source = log_filename(source);
-    return source;
-}
-
-/**************************************************************************//**
- * @author Julian Brackins
- *
- * @par Description:
- * Prints a list of all folders in the current directory. This is useful for
- * the ./grade user, as it lists all directories that could contain programs
- * to test.
- * A modified version of vector_directories(), sans the recursion.
- *
- * @returns none
- *
- *****************************************************************************/
-void dir_list()
-{
-    /*dir_list is not used
-      in sprint 1*/
-
-    DIR *dp;
-    struct dirent *dirp;
-    string path(get_pathname());
-    path += "/";
-    string file_name;
-
-    if ((dp = opendir(path.c_str())) == NULL)
-    {
-        cout << "Error opening directory...\n";
-        return;
-    }
-    else
-    {
-        cout << "Directory List:\n\n";
-        while ((dirp = readdir(dp)) != NULL)
-        {
-            if (dirp->d_name != string(".") && dirp->d_name != string(".."))
-            {
-                if (is_dir(path + dirp->d_name) == true)
-                {
-                    file_name =  dirp->d_name;
-                    cout << file_name << "\n";
-                }
-            }
-        }
-        closedir(dp);
-    }
 }
 
 /**************************************************************************//**

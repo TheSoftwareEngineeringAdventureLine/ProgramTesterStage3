@@ -1,18 +1,21 @@
+#-----------------------------------------------------------------------
+
 # Use the GNU C/C++ compiler:
 CC = gcc
-CPP = g++
+CXX = g++
 
 # COMPILER OPTIONS:
-
-CFLAGS = -c
+##CFLAGS = -c
 
 #OBJECT FILES
-OBJS = test.o
+OBJS = string_ops.o dir_traversal.o test.o
 
-test: test.o
-	${CPP} -lm ${OBJS} -o test
+all: test
+
+test: string_ops.o dir_traversal.o test.o
+	$(CXX) -lm $^ -O3 -g -o $@
 test.o: test.cpp
-clean:
-	rm -f *.o test
-realclean:
-	rm -f *.o test *~ *.swp
+string_ops.o: string_ops.cpp
+dir_traversal.o: dir_traversal.cpp
+
+#-----------------------------------------------------------------------
