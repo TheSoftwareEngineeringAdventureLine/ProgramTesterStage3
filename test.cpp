@@ -21,7 +21,7 @@
  * @section program_section Program Information
  *
  * @details
- * test.cpp 
+ * test.cpp
  *
  * @section compile_section Compiling and Usage
  *
@@ -32,9 +32,10 @@
    @verbatim
    ./test <directory>
 
-	NOTE: <directory> should be a directory containing student source code and 
+	NOTE: <directory> should be a directory containing student source codes
+    that are in their own folder and
 	.tst and .ans files.
- 
+
    @endverbatim
  *
  * @section todo_bugs_modification_section Todo, Bugs, and Modifications
@@ -131,7 +132,7 @@ string format_argv(char *argv);
 void dir_list();
 
 /**************************************************************************//**
- * @author Julian Brackins
+ * @authors Julian Brackins, Benjamin Sherman, James Tillma, & Anthony Morast
  *
  * @par Description:
  * Main function.
@@ -147,11 +148,13 @@ int main(int argc, char ** argv)
 {
     usage();
     bool generate;
+    // user only entered a directory argument
     if(argc == 2)
     {
         cout << "Testing " << argv[1] << "...\n" ;
         generate = false;
     }
+    // user entered a directory and generate tests flag
     else if(argc == 3 && strcmp(argv[2], "-g") == 0)
     {
         cout << "**************GENERATING TEST CASES***************" << endl;
@@ -228,7 +231,7 @@ int run_file(string cpp_file, string test_case)
     string buffer3(" > ");
 
     // "try using | "
-    //construct run command, then send to system 
+    //construct run command, then send to system
     //./<filename> &> /dev/null  < case_x.tst > case_x.out
     buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
     system(buffer1.c_str());
@@ -237,6 +240,22 @@ int run_file(string cpp_file, string test_case)
     return result_compare(test_case);
 }
 
+/**************************************************************************//**
+ * @authors Julian Brackins, James Tillma, Anthony Morast & Benjamin Sherman
+ *
+ * @par Description:
+ * Using C++ String manipulation, a command is sent to the terminal in
+ * order to run the file brought in by the argument cpp_file
+ * String buffers are used to handle piping both for inputting
+ * and outputting
+ *
+ * The run line sent to system() is as follows
+ * run_file(example, case_x.tst);
+ * <full_path>/./example < case_x.tst > case_x.out
+ *
+ * @param[in] cpp_file - name of program file to be run
+ * @param[in] test_case - string with test case file name path
+ *****************************************************************************/
 void generate_ans(string cpp_file, string test_case)
 {
     string run_cmd("./");
@@ -256,7 +275,6 @@ void generate_ans(string cpp_file, string test_case)
     buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
 
     system(buffer1.c_str());
-
 }
 /**************************************************************************//**
  * @author Benjamin Sherman
@@ -278,7 +296,7 @@ string format_argv(char *argv)
         class_folder = class_folder.substr(0, class_folder.length() - 1);
 
     return class_folder;
-    
+
 
 }
 
@@ -291,27 +309,25 @@ string format_argv(char *argv)
  *
  * The algorithm is as follows:
  * -create a vector of every subdirectory in program folder
- * -change to directory where program is located
- * -compile program
- * -while subdirectory vector is not empty:
- *   -de-vector first subdirectory in vector
- *     -change into that subdirectory
- *   -create a vector of every .tst file in current directory
- *   -while test case vector is not empty:
- *     -de-vector first test case in vector
- *     -run program using that test case
- *       -count whether the program passed or failed test case
- * -change back to home directory (where program is located)
- * -create a vector of every .tst file in home directory
- *   -while test case vector is not empty:
- *     -de-vector first test case in vector
- *     -run program using that test case
- *       -count whether the program passed or failed test case
- * -write log file containing percentage of tests passed and final grade
+ * -change to directories where test cases are located and store path
+ *    to test cases and critical test cases
+ * -sequentially test each each students source code against the test cases
+ *      -test code against critical test cases
+ *      -if student code passed all critical test cases
+ *          -finish testing on normal test cases
+ *          -record what percentage of test cases student PASSED
+ *      -else
+ *          -record that student FAILED, no percentage grade
  *
- * @param[in] cpp_file - program name
+
  *
- * @returns none
+ * @param[in] class_folder - name of directory that contains the source
+ * code for each student in a CSC_150 class
+ * @param[in] generate - flag that tells this function whether to
+ * generate test cases or not
+ *
+ * @returns true - testing completed
+ * @returns false - student source code failed to compile during testing
  *
  *****************************************************************************/
 bool test_loop(string class_folder, bool generate)
@@ -480,7 +496,8 @@ string student_name(string source)
  *
  * The file output stream "fout" is passed by reference to write to a student
  * logfile. Total is passed by reference to keep track of the number of tests
- * a students code has gone through. "passed" is returned and stores whether
+ * a students code has passed. "passed" is returned and stores whether a
+ * student failed any test cases in the vector "test_cases".
  *
  * @param[in] cpp_file - name of student source code file to be tested
  * @param[in] total - used to keep track of the total number of test cases a
@@ -494,7 +511,6 @@ string student_name(string source)
  *****************************************************************************/
 bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream &fout)
 {
-    cout << cpp_file << endl;
     bool passed = true;
     int j = test_cases.size();
     for(int i = 0; i < j; i++) //test_cases is empty if done testing home directory
@@ -513,54 +529,55 @@ bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream 
     }
     return passed;
 }
+
 /**************************************************************************//**
  * @author Anthony Morast
  *
  * @par Description
- * This function fills a vector with the source code for each student in the 
+ * This function fills a vector with the source code for each student in the
  * grading directory. Another vector is used to store the paths to each students
  * source code. This is obviously set up in such a way that the position in
- * both vectors correspond to the same student. 
+ * both vectors correspond to the same student.
  *
  * @param[in] vector source: stores name of the students source code
  * @param[in] string new_dir: directory to move into to look for student code
- * @param[in] string home: home directory, switch back at the end 
- * @param[in] vector source_paths: path to each students source code 
+ * @param[in] string home: home directory, switch back at the end
+ * @param[in] vector source_paths: path to each students source code
  *
  * @returns None
  *****************************************************************************/
 void student_source (vector<string>& source, string new_dir,string home,
-	vector<string>& source_paths)
+                     vector<string>& source_paths)
 {
-	//if the sub_dir belongs to a student, switch into that directory
-	string source_file;
-	change_dir(new_dir);
-	
-	//gets the current path
-	string path = get_pathname();
-	
-	get_source(source_file);	//find the .cpp source file
-	if ( source_file.find(".cpp") != -1 )
-	{	
+    //if the sub_dir belongs to a student, switch into that directory
+    string source_file;
+    change_dir(new_dir);
+
+    //gets the current path
+    string path = get_pathname();
+
+    get_source(source_file);	//find the .cpp source file
+    if ( source_file.find(".cpp") != -1 )
+    {
         source.push_back(source_file);	//vector the source file
-		source_paths.push_back(path);	//vector the path
-	}
-	
-	//switch to home directory
-	change_dir(home);	
+        source_paths.push_back(path);	//vector the path
+    }
+
+    //switch to home directory
+    change_dir(home);
 }
 
 /**************************************************************************//**
  * @author Anthony Morast
  *
  * @par Description
- * This function determines whether or not a .cpp file exists in the home 
+ * This function determines whether or not a .cpp file exists in the home
  * directory. If there is a .cpp file in the home directory this is deemed the
- * golden cpp. The name of the golden.cpp file, the path to the file, and a 
- * boolean to determine whether or not the .cpp is there are "returned" from 
+ * golden cpp. The name of the golden.cpp file, the path to the file, and a
+ * boolean to determine whether or not the .cpp is there are "returned" from
  * this function.
  *
- * @param[in] golden_name: holds the name of the golden.cpp file 
+ * @param[in] golden_name: holds the name of the golden.cpp file
  * @param[in] path: path to change into, should be directory with student
  *					directories,test directories, etc.
  * @param[in] home: home directory, switch back to at end.
@@ -570,23 +587,23 @@ void student_source (vector<string>& source, string new_dir,string home,
  *****************************************************************************/
 bool isGolden(string& golden_name, string& path, string home)
 {
-	string name;
+    string name;
 
-	change_dir(path); //change into directory
+    change_dir(path); //change into directory
 
-	get_golden(name); //determine if there's a .cpp file
-	
-	if (name.length() > 0)	//if there is a .cpp file
-	{
-		golden_name = name;		//set golden name to the .cpp file name
+    get_golden(name); //determine if there's a .cpp file
+
+    if (name.length() > 0)	//if there is a .cpp file
+    {
+        golden_name = name;		//set golden name to the .cpp file name
         path = get_pathname();  //pat to golden.cpp..........
-		change_dir(home);	//change back to home directory
-		return true;
-	}
+        change_dir(home);	//change back to home directory
+        return true;
+    }
 
-	change_dir(home);	//change back to home dir
+    change_dir(home);	//change back to home dir
 
-	return false;  //otherwise return false
+    return false;  //otherwise return false
 }
 
 /**************************************************************************//**
@@ -609,7 +626,6 @@ int count_case()
     struct dirent *ep;
     dp = opendir ("./");
 
-    //cout << get_pathname() << endl;
     if (dp != NULL)
     {
         while (ep = readdir (dp))
@@ -738,9 +754,9 @@ bool is_dir(string dir)
  * @par Description
  * This function walks through the root directory and determines if there is
  * a .cpp file in the directory. If there is it is returned to the isGolden
- * function via source_file. 
+ * function via source_file.
  *
- * @param[in] source_file - stores the name of the cpp source file found 
+ * @param[in] source_file - stores the name of the cpp source file found
  *
  * @returns None
  *****************************************************************************/
@@ -749,31 +765,31 @@ void get_golden(string& source_file)
     DIR *dp;
     struct dirent *dirp;
     string path(get_pathname());
-	string slash = "/";
+    string slash = "/";
     path += slash;
-	string cpp = ".cpp";
+    string cpp = ".cpp";
     string file_name;
-	
-    if ((dp = opendir(path.c_str())) == NULL) 
+
+    if ((dp = opendir(path.c_str())) == NULL)
     {
         cout << "Error opening directory...\n";
         return;
-    } 
-    else 
+    }
+    else
     {
         //cout << "files in: " << path << "\n";
-        while ((dirp = readdir(dp)) != NULL) 
+        while ((dirp = readdir(dp)) != NULL)
         {
-            if (dirp->d_name != string(".") && dirp->d_name != string("..")) 
+            if (dirp->d_name != string(".") && dirp->d_name != string(".."))
             {
-                if (is_dir(path + dirp->d_name) == false)       //NOT a directory
+                if (is_dir(path + dirp->d_name) == false)    //NOT a directory
                 {
                     file_name =  dirp->d_name;
-                    string ext (file_name.end()-4, file_name.end());    //get ext
-                    if(ext.compare(".cpp") == 0)                         //check if it's a .cpp
+                    string ext (file_name.end()-4, file_name.end());//get ext
+                    if(ext.compare(".cpp") == 0)        //check if it's a .cpp
                     {
                         //cout << file_name << "\n";
-                        source_file = file_name;                  //add .cpp file name to vector
+                        source_file = file_name; //add .cpp file name to vector
                     }
                 }
             }
@@ -788,9 +804,9 @@ void get_golden(string& source_file)
  * This function walks through each directory and determines if there is a .cpp
  * file named after the name of the directoty. If so this is a student's
  * directory. The cpp file is set to source_file and returned to get source
- * to be vectord.  
+ * to be queued.
  *
- * @param[in] source_file - stores the name of the cpp source file found 
+ * @param[in] source_file - stores the name of the cpp source file found
  *
  * @returns None
  *****************************************************************************/
@@ -799,41 +815,36 @@ void get_source(string& source_file)
     DIR *dp;
     struct dirent *dirp;
     string path(get_pathname());
-	string slash = "/";
-	string cpp = ".cpp";
+    string slash = "/";
+    string cpp = ".cpp";
     string file_name;
-	string student_name = "test";
+    string student_name = "test";
 
-	int index = path.find_last_of(slash);
-	student_name = path.substr(index+1,path.length()-1);
-	student_name += cpp;	
+    int index = path.find_last_of(slash);
+    student_name = path.substr(index+1,path.length()-1);
+    student_name += cpp;
 
     path += slash;
 
-	//cout << "looking for " << student_name <<" in " <<get_pathname();
+    //cout << "looking for " << student_name <<" in " <<get_pathname();
 
-    if ((dp = opendir(path.c_str())) == NULL) 
+    if ((dp = opendir(path.c_str())) == NULL)
     {
         cout << "Error opening directory...\n";
         return;
-    } 
-    else 
+    }
+    else
     {
         //cout << "files in: " << path << "\n";
-        while ((dirp = readdir(dp)) != NULL) 
+        while ((dirp = readdir(dp)) != NULL)
         {
-            if (dirp->d_name != string(".") && dirp->d_name != string("..")) 
+            if (dirp->d_name != string(".") && dirp->d_name != string(".."))
             {
-                if (is_dir(path + dirp->d_name) == false)       //NOT a directory
+                if (is_dir(path + dirp->d_name) == false)  //NOT a directory
                 {
                     file_name =  dirp->d_name;
-                    //string ext (file_name.end()-4, file_name.end());    //get ext
-                    if(file_name == student_name)                         //check if it's a .cpp
-                    {
-						//cout << " found " << file_name;
-                        //cout << file_name << "\n";
-                        source_file = file_name;                  //add .cpp file name to queue
-                    }
+                    if(file_name == student_name)     //check if it's a .cpp
+                        source_file = file_name; //add .cpp file name to queue
                 }
             }
         }
@@ -875,12 +886,13 @@ void vector_directories(string base_dir, vector<string>& vector)
         {
             if (dirp->d_name != string(".") && dirp->d_name != string(".."))
             {
-                if (is_dir(base_dir + dirp->d_name) == true)            //it's a directory
+                //it's a directory
+                if (is_dir(base_dir + dirp->d_name) == true)
                 {
                     path = base_dir + dirp->d_name + "/";
-                    //cout << path << endl;
-                    vector.push_back(path);                                   //push string into vector
-                    vector_directories(base_dir + dirp->d_name, vector);  //recursion!!
+                    vector.push_back(path);     //push string into vector
+                    //recursion!!
+                    vector_directories(base_dir + dirp->d_name, vector);
                 }
             }
         }
@@ -924,17 +936,16 @@ void vector_test_cases(vector<string>& case_vector, vector<string> &crit_vector)
     }
     else
     {
-        //cout << "files in: " << path << "\n";
         while ((dirp = readdir(dp)) != NULL)
         {
             new_path = path;
             if (dirp->d_name != string(".") && dirp->d_name != string(".."))
             {
-                if (is_dir(path + dirp->d_name) == false)       //NOT a directory
+                if (is_dir(path + dirp->d_name) == false)   //NOT a directory
                 {
                     file_name =  dirp->d_name;
-                    string ext (file_name.end()-4, file_name.end());    //get ext
-                    if(ext.compare(".tst") == 0)                         //check if it's a .tst
+                    string ext (file_name.end()-4, file_name.end());  //get ext
+                    if(ext.compare(".tst") == 0)    //check if it's a .tst
                     {
                         new_path += file_name;
                         // get position fo last dot and alst underscore int eh filename path
@@ -952,7 +963,6 @@ void vector_test_cases(vector<string>& case_vector, vector<string> &crit_vector)
                         if(crit.compare("_crit.") == 0)
                             crit_vector.push_back(new_path);
                         else
-                            //cout << file_name << "\n";
                             case_vector.push_back(new_path);  //add .tst file name to vector
 
                     }
@@ -1056,8 +1066,8 @@ void err_usage()
 {
     cout << "\nAn error occurred.....\n";
     cout << "USAGE:\n";
-    cout << "./test <filename> : compile <filename> and test it\n";
-    cout << "                    against available test suites\n";
+    cout << "./test <class_directory> | -g";
+    cout << "                           -g will generate test cases.\n";
 }
 
 /**************************************************************************//**
@@ -1297,8 +1307,8 @@ void generateFiles(string testPath, string goldenName)
 {
     string homepath = get_pathname();
     change_dir(testPath);
-	const string integer = "int";
-	const string floating = "float";
+    const string integer = "int";
+    const string floating = "float";
     string type, tempPath;
     string generatedNameBase = "/GENERATED_TEST_FILE_";
     string tst = ".tst";
@@ -1306,48 +1316,48 @@ void generateFiles(string testPath, string goldenName)
     string toTest;
     float min, max;
     int numCases, numFiles;
-	char temp[6];
-	ofstream testFout;
+    char temp[6];
+    ofstream testFout;
     ifstream openTest;
-	float tempRand;
-	ostringstream convert;
+    float tempRand;
+    ostringstream convert;
 
     compile_file(goldenName);
-	cout << "Choose a type of test case, \"int\" or \"float\":" << endl;
-	do
-	{
-		cin.getline(temp, 6);
-		type = temp;
-		if( type != integer && type != floating )
-		{
-			cout << "Enter either \"int\" or \"float\" to use as the type for test cases: " << endl;
-		}
-	} while (type != integer && type != floating );
+    cout << "Choose a type of test case, \"int\" or \"float\":" << endl;
+    do
+    {
+        cin.getline(temp, 6);
+        type = temp;
+        if( type != integer && type != floating )
+        {
+            cout << "Enter either \"int\" or \"float\" to use as the type for test cases: " << endl;
+        }
+    } while (type != integer && type != floating );
 
-	cout<< "Enter a number of test cases to use per file: " << endl;
-	cin >> numCases;
+    cout<< "Enter a number of test cases to use per file: " << endl;
+    cin >> numCases;
 
-	cout<< "Enter the minimum value to use in test-case creation: " << endl;
-	cin >> min;
+    cout<< "Enter the minimum value to use in test-case creation: " << endl;
+    cin >> min;
 
-	cout << "Enter the maximum value to use in test-case creation: " << endl;
-	do
-	{
-		cin >> max;
-		if( max <= min )
-		{
-			cout << "The maximum must be greater than the minimum, re-enter the maximum: " << endl;
-		}
-	} while ( max <= min );
+    cout << "Enter the maximum value to use in test-case creation: " << endl;
+    do
+    {
+        cin >> max;
+        if( max <= min )
+        {
+            cout << "The maximum must be greater than the minimum, re-enter the maximum: " << endl;
+        }
+    } while ( max <= min );
 
-	cout << "Enter the number of test case files to create: " << endl;
-	cin >> numFiles;
+    cout << "Enter the number of test case files to create: " << endl;
+    cin >> numFiles;
 
-	srand(time(NULL));
+    srand(time(NULL));
 
-	for( int i = 0; i < numFiles; i++)
-	{ 
-		convert << i;
+    for( int i = 0; i < numFiles; i++)
+    {
+        convert << i;
         tempPath = testPath + generatedNameBase + convert.str();
         toTest = tempPath;
         toTest += tst;
@@ -1362,23 +1372,23 @@ void generateFiles(string testPath, string goldenName)
         }
         openTest.close();
         testFout.open( toTest.c_str() );
-		for( int j = 0; j < numCases; j++ )
-		{
-			while ( type == floating && tempRand == 0)
-			{
-				tempRand = float(rand()) / RAND_MAX;
-				if ( tempRand == 1)
-					tempRand--;
+        for( int j = 0; j < numCases; j++ )
+        {
+            while ( type == floating && tempRand == 0)
+            {
+                tempRand = float(rand()) / RAND_MAX;
+                if ( tempRand == 1)
+                    tempRand--;
             }
             if(type == floating)
                 testFout << tempRand + fmod((float)rand(), ((min - max) + min)) << endl;
             else
                 testFout << rand() % (int)((min - max) + min) << endl;
-		}
+        }
         convert.str("");
         generate_ans(goldenName, toTest);
         testFout.close();
-	}
+    }
 
     change_dir(homepath);
 }
