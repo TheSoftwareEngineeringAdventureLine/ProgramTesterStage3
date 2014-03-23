@@ -10,18 +10,20 @@ This section gives a brief overview of the system.
 
 
 \section{Purpose}
-The purpose of this program is to run {\tt .cpp} files with given test files, and grade them. 
+The purpose of this program is to run many students' {\tt .cpp} files with given test files, and grade them. 
 
 
 \subsection{Traversing Subdirectories}
-Traversing subdirectories is one of the main components of this system. The program runs a {\tt .cpp} file using test files, and the test files are stored in the current and all the subdirectories.  
+Traversing subdirectories is one of the main components of this system. The program runs a {\tt .cpp} file using test files, and the test files are stored in the current and all the subdirectories containing the "test" keyword.
 
 \subsection{Running the Program Using Test Cases}
 The software was designed in the Linux environment provided to the group by the university. 
- 
+
+\subsection{Test Case Generation}
+A major update in sprint 2 is test case generation. This allows the user to actually generate psuedo-random test cases.
 
 \section{Systems Goals}
-The goal of this system is to grade a {\tt .cpp} file just by typing {\tt grade <filename>.cpp}. The product is built to test the {\tt .cpp} file with all the given {\tt .tst} test files in the current directory and all the subdirectories, and compare the results to the corresponding {\tt .ans} files.  
+The goal of this system is to grade students' {\tt .cpp} file(s) just by typing {\tt grade <filename>.cpp}. The product is built to test the {\tt .cpp} file(s) with all the given {\tt .tst} test files in the current directory and all the subdirectories, and compare the results to the corresponding {\tt .ans} files.
 
 \section{System Overview and Diagram}
 Here is a flow diagram showing the implementation process:

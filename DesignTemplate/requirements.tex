@@ -18,7 +18,7 @@ task results.
 
 
 \subsection{Purpose of the System}
-The purpose of the product is to grade a {\tt <filename>.cpp} file by running test files and comparing the results to answer files, and assigning percentage grade. 
+The purpose of the product is to grade many students' {\tt <filename>.cpp} file by running test files and comparing the results to answer files, and assigning percentage grade.
 
 
 \section{ Stakeholder Information}
@@ -28,22 +28,22 @@ This section would provide the basic description of all of the stakeholders for
 the project.
 
 \subsection{Customer or End User (Product Owner)}
-Jonathan Dixon is the product owner in this project, who is in contact with the scrum master and technical lead regarding the backlog. 
+Benjamin Sherman is the product owner in this project, who is in contact with the scrum master and technical lead regarding the backlog. 
 
 \subsection{Management or Instructor (Scrum Master)}
-Hafiza Farzami is the scrum master, who breaks the project into smaller tasks, and is in touch with both product owner and technical lead.
+James Tillma is the scrum master, who breaks the project into smaller tasks, and is in touch with both product owner and technical lead.
 
 %\subsection{Investors}
 %Are there any?  Who?  What role will they play? 
 
 
 \subsection{Developers --Testers}
-Julian Brackins is the technical lead for Sprint 1, and is in contact with both Dixon and Farzami regarding the requirements during scrum meetings and through trello notes. 
+Anthony Morast is the technical lead for Sprint 1, and is in contact with both Tillma and Sherman regarding the requirements during scrum meetings and through Trello notes. 
 
 
 
 \section{Business Need}
-This product is essential for grading computer science programs focused on numerics. All the user have to do is have test cases and expected results in the directory that the {\tt <filename>.cpp} file is in and any of the subdirectories, and run the {\tt grade.cpp} program. It saves a lot of time, and is efficient. 
+This product is essential for grading computer science programs focused on numerics. All the user has to do is have test cases and expected results in the directory that the {\tt <filename>.cpp} file is in and any of the subdirectories, and run the {\tt grade.cpp} program. It saves a lot of time, and is efficient. 
 
 \section{Requirements and Design Constraints}
 Use this section to discuss what requirements exist that deal with meeting the 
@@ -53,15 +53,15 @@ Server only, iOS only, slow network constraints, or no offline, local storage ca
 
 
 \subsection{System  Requirements}
-This product runs on Linux machines. 
+This product runs on the Linux machines in the Opp Lab. 
 
 
 \subsection{Network Requirements}
-This software does not require internet connection. 
+This software does not require an internet connection of any sort. 
 
 
 \subsection{Development Environment Requirements}
-There are not any development environment requirements.
+There are not any development environment requirements except that there must be a C++ compiler.
 
 
 \subsection{Project  Management Methodology}
@@ -79,21 +79,41 @@ The method used to manage this project is {\tt scrum}. The scrum master met with
 This section contains the user stories regarding functional requirements and how the team broke them down.
 
 
+\subsection{User Story \#1}:
+As a professor I want to be able to automatically grade a student's source code so that I can save time.
 
+\subsubsection{User Story \#1 Breakdown} 
+The highlight of this story is "automatically". The professor does not want to have to interact with the grading tool after it is run.
+\subsection{User Story \#2} 
 
-\subsection{User Story}
-Write an automatic testing system. By Wednesday, your team should have a list of questions for me (the customer) on exactly what I require. Think CS150/250/300 programs - not major software.
+As a professor I want to be able to provide test cases with answers so that I can grade different program assignments.
 
-\subsubsection{User Story Breakdown \#1}
+\subsubsection{User Story \#2 Breakdown}
+This story refers to assembling test cases and running the student code on those test cases
 
-The purpose of the program is to grade a student's file, comparing it to multiple test case files. It'll be called like this: {\tt grade <filename>.cpp}. It will grade the file, looking through the current directory for any {\tt .tst} files, which will contain the test cases. We must compile the program, which is in C++. 
+\subsection{User Story \#3} 
 
-It is understood that all inputs will be valid (no error checking, program won't crash, etc...). The program will be tested on numeric computations. If it uses files, they'll be {\tt input.txt} and {\tt output.txt}. {\tt <filename>.log} will contain the results of each test case.
+As a professor I want to be able to regrade a students source code without loosing the data from a previous
+grading so that I can see what changes upgrading test cases have.
 
-The idea is to grab the test case, copy it to input.txt, run the program, compare outputs, and put results into the log file. {\tt .tst} files will have a test case followed by a blank line, followed by expected results.
+\subsubsection{User Story \#3 Breakdown}
+This story refers to saving data. Data from an old runtime should not be removed by a new runtime. Data should be appended to a neatly formatted file for viewing.
 
-\subsubsection{User Story Breakdown \#2}
-A student submits a program.  That program is placed into a directory that forms the root of the directory tree related to that program.  All the instructors and teacher's assistant will have the ability to write test cases (called case\#.tst and the accompanying file case\#.ans).  There are no restrictions on where those files can be located except that they will be at the level of the .cpp file or below.  For example. Manes might have a subdirectory where he puts his test cases.  His TAs might have subdirectories under the Manes subdirectory where they put their test cases.  Manes might just make the directory but not put any test cases in it just so his TAs have a place to put theirs (in subdirectories).  I want to say 
-test quadratic
-and have your program find all the applicable test cases (with the accompanying answer files), run the tests, log the results, and provide a summary.  I want to be able to fix problems and rerun the test without losing the original log file.  Append the date so I can tell them apart.
+\subsection{User Story \#4}
+I want to be able to run this program on an entire class of students.
+
+\subsubsection{User Story \#4 Breakdown}
+The highlight of this story is that the user wants to be able to run the program one time for an entire class of students. This will require more directory crawling.
+
+\subsection{User Story \#5}
+I as a user want to be able to generate test cases within a certain range instead of being able to only use existing test cases.
+
+\subsubsection{User Story \#5 Breakdown}
+The important part of this user story is generating test cases. The user will need to provide a min/max, a type of int/float, a number of cases to generate per file, and a number of files to generate. This will be the only portion requiring user input beyond command arguments.
+
+\subsection{User Story \#6}
+I as a user want to be able to be able to make a certain test case critical. Meaning, that test case will make the student's program a complete failure if their program does not process it properly.
+
+\subsubsection{User Story \#6 Breakdown}
+The highlight of this story is the potential for a student to "critically fail" a program. That is, it my no longer matter how their code does on other test cases because if it fails a critical one, it instantly fails.
 
