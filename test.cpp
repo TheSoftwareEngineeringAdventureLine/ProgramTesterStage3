@@ -1322,7 +1322,7 @@ void generateFiles(string testPath, string goldenName)
     ifstream openTest;
     ostringstream convert;
 
-	system("mkdir test &>/dev/null");
+	system("mkdir test &>/dev/null"); //make the directory to store test files if it doesnt exist
 
 
     compile_file(goldenName);
@@ -1376,6 +1376,8 @@ void generateFiles(string testPath, string goldenName)
     } while ( numFiles <= 0 );
     srand(time(NULL));
 
+
+	//added to the path name to put .tst files in the test directory created above
 	string testDir = "/test";
 
     for( int i = 0; i < numFiles; i++)
