@@ -1330,7 +1330,7 @@ void generateFiles(string testPath, string goldenName)
     cout << "Choose a type of test case, \"int\" or \"float\":" << endl;
     do
     {
-        cin >> temp;
+        cin.getline(temp, 100);
         type = temp;
         if( type != integer && type != floating )
         {
@@ -1341,7 +1341,7 @@ void generateFiles(string testPath, string goldenName)
     cout<< "Enter a number of test cases to use per file: " << endl;
     do
     {
-        cin >> temp;
+        cin.getline(temp, 100);
         numCases = atoi(temp);
         if ( numCases <= 0 )
         {
@@ -1350,13 +1350,14 @@ void generateFiles(string testPath, string goldenName)
     } while ( numCases <= 0);
     //get the minimum value to use in test-case creation
     cout<< "Enter the minimum value to use in test-case creation: " << endl;
-    cin >> temp;
+    cin.getline(temp, 100);
     min = atof(temp);
+	cout<<min<<endl;
     //get the theoretical maximum value
     cout << "Enter the maximum value to use in test-case creation: " << endl;
     do
     {
-        cin >> temp;
+        cin.getline(temp, 100);
         max = atof(temp);
         if( max <= min )
         {
@@ -1367,7 +1368,7 @@ void generateFiles(string testPath, string goldenName)
     cout << "Enter the number of test case files to create: " << endl;
     do
     {
-        cin >> temp;
+        cin.getline(temp, 100);
         numFiles = atoi(temp);
         if ( numFiles <= 0)
         {
