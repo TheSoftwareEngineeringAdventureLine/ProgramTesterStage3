@@ -220,6 +220,7 @@ int compile_file(string cpp_file)
 int run_file(string cpp_file, string test_case)
 {
     string run_cmd("./");
+    int result;
     cpp_file = student_name(cpp_file);
     run_cmd += cpp_file;
     //create .out file name
@@ -235,9 +236,12 @@ int run_file(string cpp_file, string test_case)
     //./<filename> &> /dev/null  < case_x.tst > case_x.out
     buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
     system(buffer1.c_str());
+    string remove("rm " + case_out);
 
     //0 = Fail, 1 = Pass
-    return result_compare(test_case);
+    result =  result_compare(test_case);
+    system(remove.c_str());
+    return result;
 }
 
 /**************************************************************************//**
@@ -365,6 +369,8 @@ bool test_loop(string class_folder, bool generate)
 		{
             generateFiles(homepath +class_folder, golden_name);
 		}
+        else
+            cout << "\nNo golden source code found. \nSkipping test case generation . . ." << endl;
     }
 
     vector_directories(class_folder, sub_dir);   //place all subdirectory names in vector
@@ -1414,7 +1420,6 @@ void generateFiles(string testPath, string goldenName)
             else
             {
                 testFout << rand() % (int)(max - min) + (int)min << endl;
-                cout << "int" << endl;
             }
         }
         convert.str("");
