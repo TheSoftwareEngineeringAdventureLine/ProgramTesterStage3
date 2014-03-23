@@ -1,19 +1,21 @@
 % !TEX root = SystemTemplate.tex
 \chapter{Design  and Implementation}
- This section describes the design details for the overall system as well as individual major components. As a user, you will have a good understanding of the implemetation details without having to look into the code. Here is the  
+ This section describes the design details for the overall system as well as individual major components. As a user, you will have a good understanding of the implemetation details without having to look into the code. Note that the
+ code to generate test cases is only run if there is a -g cammond line switch is specified after the directory to test is entered.
 
+ Here is an overview of the algorithm:
 
 \begin{itemize}
-  \item Create a queue of every subdirectory in program folder
-  \item Change to directory where program is located
-  \item Compile program
-  \item While subdirectory queue is not empty:
-  \item Dequeue first subdirectory in queue
-  \item Change into that subdirectory
-  \item Create a queue of every .tst file in current directory
-  \item While test case queue is not empty:
-  \item Dequeue first test case in queue
-  \item Run program using that test case
+  \item Determine if there is a .cpp file in the root directory, if so it is used to generate test cases
+  \item Create a vector of every subdirectory in program folder
+  \item Change to directory where student subdirectories are located
+  \item Step through each directory in the directory vector and determine if it contains tests or student source code
+  \item Create a vector containing the name each student's source and one containing the path to their source code
+  \item Create a vector of all the test cases
+  \item While the source code vector is not empty
+  \item Compile the program
+  \item Determine if the student passes the critical test cases, if not stop testing
+  \item Run code against tests in the test vecotor
   \item Count whether the program passed or failed test case
   \item Change back to home directory (where program is located)
   \item Create a queue of every .tst file in home directory
@@ -22,6 +24,7 @@
   \item Run program using that test case
   \item Count whether the program passed or failed test case
   \item Write log file containing percentage of tests passed and final grade
+  \item Write students results to summary file
 \end{itemize}
 
 
@@ -59,8 +62,7 @@ bool is_dir(string dir)
 \section{Running the Program Using Test Cases }
 
 \subsection{Technologies  Used}
-The software was designed in the Linux Environment provided to the group by the University.
-
+The software was designed in the Linux Environment.
 
 
 \subsection{Design Details}

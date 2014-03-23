@@ -2,23 +2,23 @@
 
 \chapter{User Documentation}
 
-This section contains the user guide, user documentation.
-
 %\newpage   %% 
 %%  The user guide can be an external document which is included here if necessary ...
 %%  a single source is the way to go.
 
 \section{User Guide}
 
-This product is to make it easy for you to grade a computational computer program written in C++ language. In order to benefit from this product, the test.cpp file and Makefile for the testing program must be in the same directory. Located in the same directory as the test.cpp file should be a folder containing a .cpp file to be tested. The directory and .cpp names should match. In the .cpp file’s directory, you should have:
-
-	\begin{itemize} 
-  		\item The{\tt .cpp} file to be tested
-  		\item Test files (with {\tt .tst} extensions) 
+This product is to make it easy for you to grade multiple computational computer program written in C++ language. In order to benefit from this product, the student directories must all be contained within the same "root" directory.
+Within each student's directory there must be a .cpp file that has the same name as the student's directory (omit the extension). That directory should also contain the test cases the user wishes to run against each student's program.
+Finally, if the user wishes to have test cases generated, the root directory should contain a .cpp file which will be compiled and used to generate answers to the generated test cases. In summary the root directory should contain:
+    \begin{itemize}
+  		\item The subdirectories containing student source code
+  		\item Test files or subdirectories containing test files (with {\tt .tst} extensions)
   		\item Corresponding solution files (with {\tt .ans} extensions)
+        \item A .cpp to generate answers to generated test cases. 
 	\end{itemize} 
 
-As a user, all you need to do is type {\tt grade <filename>.cpp} in the terminal. It is assumed that you are using this product on  {\tt Windows} or  {\tt Linux} operating system. The program will run through all the test cases and compare the results from the  {\tt .cpp} file with the answer in  {\tt .ans} file. If the answers were similar, the {\tt .cpp} file will get 100\% credit for that partiular case, else the percentage will be zero. The program will run and return you a {\tt .log} file containing the grade for a given {\tt .cpp} file.
-   
+As a user, you must complie this program in a Linux environment. To run this program the first command line argument must be the name of the dirctory you wish to test (note this program must be executed in a directory "one step back" from the directory you wish to test. If you want to generate test cases, a second command line argument "-g" must be specified when executing the program. 
 
-
+\subsection {Test Case Generation}
+If a "-g" is the second command line arugment and a .cpp file exists within the directory being traversed prompts will be displayed to determine what type of test cases you want to generate. You may generate floting point or integer values, decide in what range you want the values generated, decide how many values to generate in each .tst file, and choose how many .tst files you want to generate. After all these values are specified, the program will create each .tst file, compile the "golden.cpp" file, run each test file through the golden.cpp executable, and output to individual answer (.ans) files.
