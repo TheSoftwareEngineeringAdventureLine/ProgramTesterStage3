@@ -362,7 +362,9 @@ bool test_loop(string class_folder, bool generate)
 
         //call James' function here!
         if (golden)
-            generateFiles(homepath + class_folder, golden_name);
+		{
+            generateFiles(homepath +class_folder, golden_name);
+		}
     }
 
     vector_directories(class_folder, sub_dir);   //place all subdirectory names in vector
@@ -1309,50 +1311,67 @@ void generateFiles(string testPath, string goldenName)
     change_dir(testPath);
     const string integer = "int";
     const string floating = "float";
-    string type, tempPath;
+    string type, tempPath, toTest;
     string generatedNameBase = "/GENERATED_TEST_FILE_";
     string tst = ".tst";
     string ans = ".ans";
-    string toTest;
-    float min, max;
+    float min, max, tempRand;
     int numCases, numFiles;
-    char temp[6];
+    char temp[20];
     ofstream testFout;
     ifstream openTest;
-    float tempRand;
     ostringstream convert;
 
     compile_file(goldenName);
+    //get the type of test case to use (used in random number generation)
     cout << "Choose a type of test case, \"int\" or \"float\":" << endl;
     do
     {
-        cin.getline(temp, 6);
+        cin.getline(temp, 100);
         type = temp;
         if( type != integer && type != floating )
         {
             cout << "Enter either \"int\" or \"float\" to use as the type for test cases: " << endl;
         }
     } while (type != integer && type != floating );
-
+    //get the number of test cases to generate per file
     cout<< "Enter a number of test cases to use per file: " << endl;
-    cin >> numCases;
-
+    do
+    {
+        cin.getline(temp, 100);
+        numCases = atoi(temp);
+        if ( numCases <= 0 )
+        {
+            cout << "The number of cases must be positive, please re-enter: " << endl;
+        }
+    } while ( numCases <= 0);
+    //get the minimum value to use in test-case creation
     cout<< "Enter the minimum value to use in test-case creation: " << endl;
-    cin >> min;
-
+    cin.getline(temp, 100);
+    min = atof(temp);
+	cout<<min<<endl;
+    //get the theoretical maximum value
     cout << "Enter the maximum value to use in test-case creation: " << endl;
     do
     {
-        cin >> max;
+        cin.getline(temp, 100);
+        max = atof(temp);
         if( max <= min )
         {
             cout << "The maximum must be greater than the minimum, re-enter the maximum: " << endl;
         }
     } while ( max <= min );
-
+    //get the number of files to create
     cout << "Enter the number of test case files to create: " << endl;
-    cin >> numFiles;
-
+    do
+    {
+        cin.getline(temp, 100);
+        numFiles = atoi(temp);
+        if ( numFiles <= 0)
+        {
+            cout << "The number of files to generate must be positive, re-enter the number: " << endl;
+        }
+    } while ( numFiles <= 0 );
     srand(time(NULL));
 
     for( int i = 0; i < numFiles; i++)
@@ -1372,6 +1391,7 @@ void generateFiles(string testPath, string goldenName)
         }
         openTest.close();
         testFout.open( toTest.c_str() );
+		//generate random values and output to test file
         for( int j = 0; j < numCases; j++ )
         {
             while ( type == floating && tempRand == 0)
@@ -1381,9 +1401,9 @@ void generateFiles(string testPath, string goldenName)
                     tempRand--;
             }
             if(type == floating)
-                testFout << tempRand + fmod((float)rand(), ((min - max) + min)) << endl;
+                testFout << tempRand + fmod((float)rand(), ((min - max)) + min) << endl;
             else
-                testFout << rand() % (int)((min - max) + min) << endl;
+                testFout << rand() % (int)(min - max) + (int)min << endl;
         }
         convert.str("");
         generate_ans(goldenName, toTest);
