@@ -1322,6 +1322,9 @@ void generateFiles(string testPath, string goldenName)
     ifstream openTest;
     ostringstream convert;
 
+	system("mkdir test &>/dev/null");
+
+
     compile_file(goldenName);
     //get the type of test case to use (used in random number generation)
     cout << "Choose a type of test case, \"int\" or \"float\":" << endl;
@@ -1373,10 +1376,13 @@ void generateFiles(string testPath, string goldenName)
     } while ( numFiles <= 0 );
     srand(time(NULL));
 
+	string testDir = "/test";
+
     for( int i = 0; i < numFiles; i++)
     {
         convert << i;
-        tempPath = testPath + generatedNameBase + convert.str();
+        tempPath = testPath + testDir + generatedNameBase + convert.str();
+		cout << tempPath << endl;
         toTest = tempPath;
         toTest += tst;
         openTest.open( toTest.c_str() );
