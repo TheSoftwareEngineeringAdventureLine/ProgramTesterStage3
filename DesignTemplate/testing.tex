@@ -1,31 +1,36 @@
 % !TEX root = SystemTemplate.tex
 
-\chapter{System and Unit Testing}
+\chapter{System  and Unit Testing}
 
-Testing was first done on individual function, or processes if a process required more than one function, and then on larger parts of the program as our individual peices were integrated. 
+Testing was first done on small parts of the program, and as we added more, we tested larger parts of the program.
 
 \section{Overview}
-In general, we began testing on our directory traversal and determining which type of subdirectory we had encountered. Once we could filter out the source code and test/answer files we tested our ability to change into these directories and perform the proper actions, compilation for source code and testing the student's program for test files. After we were able to do all this we began testing our log files and summary file and adjusted the foramtting as needed. Finally, once the program was working, we implemented and tested running the test generation code and critical test cases as a part of the program, rather than individually. 
+In general, we began testing on a lower level by testing our 
+capabilities for rerouting input and output. Once we managed that,
+we moved on to comparing output files to the test case files. Once Dr. 
+Logar released the test cases, we created a function to confirm directory 
+traversals. Then, when we combined the two, our program functioned correctly
+and we were able to add the finishing touches.
+
 
 
 \section{Dependencies}
-No dependencies other than a traversable directory be specified on the command line.  
+No dependencies.
 
 
 \section{Test Setup and Execution}
-\subsection{Student Grading}
+\subsection{Studenfile:///C:/Users/Ben/SkyDrive/Documents/2014 Spring/SoftEng/Sprint2/SystemDiagram.vsdxt Grading}
 The student grading section involves
 \begin{itemize}
 \item Crawling through student directories.
 \item Running each students source code on the test cases.
-\itme Generating test cases.
 \end{itemize}
 The product was tested on the customer supplied example class directory and class directories where created to for further testing.
 
-\paragraph{} Below is a list of the individual directories that were used in testing as well as the difference between them that tested aspects of the product.
+\paragraph{} Below is a list of the individual directories that where used in testing as well as the difference between them that tested aspects of the product.
 
 \paragraph{Customer Test CSC\_150 Class Directory}
-This product test demonstrates the products ability to test a class without any critical test cases and multiple directories. It also demonstrates automatic test case generation.
+This product test demonstrates the products ability to test a class without any critical test cases multiple directories. It also demonstrates automatic test case generation.
 \begin{verbatim}
 Customer Test CSC_150 Class Directory:
   Students:
@@ -72,13 +77,4 @@ Test Directory 2:
   Golden Source Code: none
 \end{verbatim}
 
-\paragraph{Test Generation Function}
-Multiple test cases were run against the function that generates the random values for the generated .tst files. Some of these test scenarios are:
-\begin{itemize}
-    \item Passing in different values when either "int" or "float" are selected initially (typical testing)
-    \item Passing in floating minimum and maximum values to integer generation. 
-    \item Intentional use of improper values.
-    \item Generating test cases in a directory where they had previously been stored (will not overwright old files).
-\end{itemize}
 
-Although we have extensively tested this code, there are a few errors that were not handled (explained in this function's code documentation). These errors were not handled as they are "special cases" and would sacrifice the readibility of the function. 
