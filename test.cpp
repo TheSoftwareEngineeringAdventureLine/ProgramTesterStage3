@@ -266,7 +266,7 @@ void generate_ans(string cpp_file, string test_case)
 
     //set up piping buffers
     string buffer1("");
-    string buffer2(" < ");// &> /dev/null < ");
+    string buffer2(" &> /dev/null < ");
     string buffer3(" > ");
 
     // "try using | "
@@ -1315,7 +1315,7 @@ void generateFiles(string testPath, string goldenName)
     string generatedNameBase = "/GENERATED_TEST_FILE_";
     string tst = ".tst";
     string ans = ".ans";
-    float min, max, tempRand;
+    float min, max, tempRand = 0;
     int numCases, numFiles;
     char temp[20];
     ofstream testFout;
@@ -1352,7 +1352,6 @@ void generateFiles(string testPath, string goldenName)
     cout<< "Enter the minimum value to use in test-case creation: " << endl;
     cin.getline(temp, 100);
     min = atof(temp);
-	cout<<min<<endl;
     //get the theoretical maximum value
     cout << "Enter the maximum value to use in test-case creation: " << endl;
     do
@@ -1403,14 +1402,20 @@ void generateFiles(string testPath, string goldenName)
         {
             while ( type == floating && tempRand == 0)
             {
-                tempRand = float(rand()) / RAND_MAX;
+                tempRand = float (rand()) / float (RAND_MAX);
                 if ( tempRand == 1)
                     tempRand--;
             }
             if(type == floating)
-                testFout << tempRand + fmod((float)rand(), ((min - max)) + min) << endl;
+            {
+                testFout << tempRand + fmod(rand(), (max - min)) + min << endl;
+                tempRand = 0;
+            }
             else
-                testFout << rand() % (int)(min - max) + (int)min << endl;
+            {
+                testFout << rand() % (int)(max - min) + (int)min << endl;
+                cout << "int" << endl;
+            }
         }
         convert.str("");
         generate_ans(goldenName, toTest);
