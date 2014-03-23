@@ -1384,7 +1384,6 @@ void generateFiles(string testPath, string goldenName)
     {
         convert << i;
         tempPath = testPath + testDir + generatedNameBase + convert.str();
-		cout << tempPath << endl;
         toTest = tempPath;
         toTest += tst;
         openTest.open( toTest.c_str() );
