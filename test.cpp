@@ -74,6 +74,10 @@
 #include <sstream>
 #include <ctime>        //Handling Timestamps
 
+#include <ctype.h>
+#include <algorithm>
+#include <cmath>
+
 /*************************************************************************//**
 *********************************NAMESPACE************************************
 ******************************************************************************/
@@ -130,6 +134,15 @@ string format_argv(char *argv);
 /*Not used in Sprint 1*/
 //bool event_loop();
 void dir_list();
+
+/*Checking For Presentation Errors*/
+bool isNumber (string s);
+double stringToFloat(string s);
+void stringtolower(string &s);
+bool cmpString(string s1, string s2);
+double roundToPlace(double val, int n);
+bool cmpNum(string s1, string s2);
+bool cmpFiles(string s1, string s2);
 
 /**************************************************************************//**
  * @authors Julian Brackins, Benjamin Sherman, James Tillma, & Anthony Morast
@@ -238,7 +251,7 @@ int run_file(string cpp_file, string test_case)
     system(buffer1.c_str());
     string remove("rm " + case_out);
 
-    //0 = Fail, 1 = Pass
+    //0 = Fail, 1 = Pass, 2 = Pass with presentation error
     result =  result_compare(test_case);
     system(remove.c_str());
     return result;
@@ -499,6 +512,8 @@ string student_name(string source)
  * @author Benjamin Sherman
  *
  * @par Description:
+ * Function Edited by Andrew Koc
+ *
  * The algorithm, given a student source code file name and a vector of test
  * cases will test the students code on every test case in the vector.
  *
@@ -521,13 +536,20 @@ bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream 
 {
     bool passed = true;
     int j = test_cases.size();
+    int pass_value;
     for(int i = 0; i < j; i++) //test_cases is empty if done testing home directory
     {
         fout << test_cases[i] << ": ";
-        if ( run_file(cpp_file, test_cases[i]) == 1)
+        pass_value = run_file(cpp_file, test_cases[i]);
+        if ( pass_value == 1)
         {
             total += 1;
             fout << "PASSED\n";
+        }
+        else if ( pass_value == 2 )
+        {
+            total += 1;
+            fout << "PASSED*\n";
         }
         else
         {
@@ -653,6 +675,7 @@ int count_case()
  * @author Julian Brackins
  *
  * @par Description:
+ * Function Slightly edited by Andrew Koc.
  * The result_compare() function is designed to determine whether or not the
  * program passes or fails a test case. in the run_file() command, the results
  * of the test are piped into a .out file with the same name as the .tst file
@@ -671,6 +694,7 @@ int count_case()
  *
  * @param[in] test_file - test file name
  *
+ * @returns 2 - Test passed with presentation errors
  * @returns 1 - Empty .tmp file, test passed.
  * @returns 0 - diff command yielded results, test failed.
  *
@@ -700,7 +724,11 @@ int result_compare(string test_file)
     if ( length == 0 ) //File is empty, no diff between .ans and .tmp
         return 1;
     else
+    {
+        if (cmpFiles(case_ans, case_out))
+            return 2;
         return 0;
+    }
 }
 
 /**************************************************************************//**
@@ -1428,4 +1456,360 @@ void generateFiles(string testPath, string goldenName)
     }
 
     change_dir(homepath);
+}
+
+/**************************************************************************//**
+ * @author Andrew Koc
+ *
+ * @par Description:
+ * Checks if a string passed in is a valid expression for a number.  Meaning it
+ * consists of digits 0-9 one or fewer '.' and possibly starting with a '-'
+ * denoting a negative number.
+ *
+ * @param[in] s - string to be tested
+ *
+ * @returns true - the string is a valid number
+ * @returns false - the string is not a valid number
+ *
+ *****************************************************************************/
+bool isNumber(string s)
+{
+    int i = 0;
+
+    //boolean value to keep track of if a decimal has been found
+    bool found_decimal = false;
+    bool found_digit = false;
+
+    //check if possible negative number
+    if ( s[0] == '-' )
+        i = 1;
+
+
+    //for each letter in the string check if it is a number, or the first
+    //decimal, else return false
+    for ( i = i; i < s.length(); i++ )
+    {
+        //check if letter is a number 0-9
+        if (isdigit(s[i]))
+        {
+            found_digit = true;
+        }
+        else
+        {
+            //check if letter is '.'
+            if ( s[i] == '.' )
+            {
+                //if we have already found a decimal
+                if (found_decimal)
+                    return false;
+                //We found a decimal set found_decimal to true;
+                found_decimal = true;
+            }
+            //we found something that isn't 0-9 or a '.'
+            else
+                return false;
+        }
+    }
+
+    if ( found_digit )
+    {
+        //String is a number return true;
+        return true;
+    }
+    else
+    {
+        //string is '.' or "-." not actual numbers
+        return false;
+    }
+}
+
+/**************************************************************************//**
+ * @author Andrew Koc
+ *
+ * @par Description:
+ * This function takes a string and changes it into a double precision floating
+ * point number.  It does this by reading each digit in from left to right
+ * multiplying the current value by ten then adding the correct value for the
+ * specified digit, until there are no more digits, or a '.' is hit.
+ *
+ * If a '.' is hit then it builds the decimal part of the number, starting
+ * right to left adding the value of the digit then dividing by ten.  Then the
+ * integer part and decimal part are added together and used as the return
+ * value.
+ *
+ * @param[in] s - the string to be converted
+ *
+ * @returns double value of string s
+ *
+ *****************************************************************************/
+double stringToFloat(string s)
+{
+    int i = 0;
+    double val = 0;
+    double dec = 0;
+    bool negative = false;
+    bool decimal_found = false;
+
+    //check for negative numbers
+    if ( s[0] == '-' )
+    {
+        negative = true;
+        i = 1;
+    }
+
+    //Get integer value of the number
+    for ( i = i; i < s.length(); i++ )
+    {
+        if ( s[i] == '.' )
+        {
+            decimal_found = true;
+            i = s.length();
+        }
+        else
+        {
+            val = val * 10;
+            val += s[i] - '0';
+        }
+    }
+
+    //if you found a decimal work backwards to get the decimal part
+    if ( decimal_found )
+    {
+        for ( i = s.length() - 1; s[i] != '.'; i-- )
+        {
+            dec += s[i] - '0';
+            dec = dec / 10;
+        }
+    }
+
+    //if the number should be negative, return the negative
+    //of the absolute value, else return the absolute value
+    val += dec;
+    if ( negative == true )
+        return -1 * val;
+    else
+        return val;
+}
+
+/**************************************************************************//**
+ * @author Andrew Koc
+ *
+ * @par Description:
+ * Using the tolower function this stringtolower takes a string and makes it
+ * all lowercase.
+ *
+ * @param[in,out] s - string to be transformed
+ *
+ * @returns nothing
+ *
+ *****************************************************************************/
+void stringtolower(string &s)
+{
+    int i;
+    for ( i = 0; i < s.length(); i++ )
+        s[i] = tolower(s[i]);
+}
+
+/**************************************************************************//**
+ * @author Andrew Koc
+ *
+ * @par Description:
+ * This function takes two strings and checks if they match, allowing for
+ * presentation errors.  These errors include: Different capitalization,
+ * If the first and last letters match they count as the same word, and if
+ * both words contain the same letters they count as the same word.
+ *
+ * This is done by calling stringtolower on both strings then checking if they
+ * have the same first and last letters, if they do the function returns true,
+ * else it continues to the next test.  Then sort is called on both strings,
+ * this will quickly tell if they have the same letters but in different orders
+ * by then comparing the sorted strings.  If the sorted strings are the same
+ * it returns true, else it returns false.
+ *
+ * @param[in] s1 - first string to be compared.
+ * @param[in] s2 - second string to be compared.
+ *
+ * @returns true - strings match with given presentation errors
+ * @returns false - strings do not match with given presentation errors
+ *
+ *****************************************************************************/
+bool cmpString(string s1, string s2)
+{
+    stringtolower(s1);
+    stringtolower(s2);
+
+    //check if first and last letters are the same
+    if ( s1[0] == s2[0] && s1[s1.length() - 1] == s2[s2.length() - 1] )
+        return true;
+
+    //check if they have the same letters, in the wrong order
+    //sort the strings and then check if they are the same
+    sort(s1.begin(), s1.end());
+    sort(s2.begin(), s2.end());
+
+    if ( s1 == s2 )
+        return true;
+
+    return false;
+}
+
+/**************************************************************************//**
+ * @author Andrew Koc
+ *
+ * @par Description:
+ * This function returns a rounded value of a double to a given decimal place.
+ *
+ * @param[in] val - the double value to be rounded
+ * @param[in] n - the number of decimal places to be rounded to
+ *
+ * @returns the rounded value of the double passed in
+ *
+ *****************************************************************************/
+double roundToPlace(double val, int n)
+{
+    double round = 5.0/10.0;
+    if ( val < 0.0 )
+        return ceil((val * pow(10, n)) - round) / pow(10, n);
+    else
+        return floor((val * pow(10, n)) + round) / pow(10, n);
+}
+
+/**************************************************************************//**
+ * @author Andrew Koc
+ *
+ * @par Description:
+ * This function takes two strings assumed to be valid number values and checks
+ * if the second value rounds to the first value.  This is done by determining
+ * the number of digits after the decimal exsist in the first number, then
+ * getting the double values of both strings and seeing if the second rounded
+ * to the specified decimal place, is equal to the first number.
+ *
+ * @param[in] s1 - the string of the first number, this is used to determine
+ *             the decimal place to round to
+ * @param[in] s2 - the string of the second number, this gets rounded.
+ *
+ * @returns true - the second number rounds to the first number
+ * @returns false - the second number does not round to the first number
+ *
+ *****************************************************************************/
+bool cmpNum(string s1, string s2)
+{
+    int pos;
+    double val1, val2;
+
+    //look for decimal place
+    size_t found = s1.find('.');
+
+    //decimal place to round to will be the number of
+    //letters left after the decimal
+    //if there is no decimal then round to 0 decimal places
+    if ( found == string::npos )
+        pos = 0;
+    else
+        pos = s1.length() - found - 1;
+
+    //get actual values to manipulate
+    val1 = stringToFloat(s1);
+    val2 = stringToFloat(s2);
+
+    //if the second number rounds to the first
+    //return true, else return false
+    if( roundToPlace(val2,pos) == val1 )
+        return true;
+    else
+        return false;
+}
+
+/**************************************************************************//**
+ * @author Andrew Koc
+ *
+ * @par Description:
+ * This function reads in two files word by word to see if they match, allowing
+ * for presentation errors such as, mispelled words, covered by the cmpString
+ * function, and rounding errors, covered by the cmpNum function.  If any set
+ * of words don't match, by being the wrong word/number or being of different
+ * types, one is a word the other is a number, or by having to little or
+ * to much information in a file this function returns false.
+ *
+ * @param[in] s1 - name of the first file to be compared
+ * @param[in] s2 - name of the second file to be compared
+ *
+ * @returns true - files match with presentation errors
+ * @returns false - files do not match
+ *
+ *****************************************************************************/
+bool cmpFiles(string s1, string s2)
+{
+    ifstream file1, file2;
+    string in1, in2;
+
+    file1.open(s1.c_str());
+    file2.open(s2.c_str());
+    if( !file1 || !file2 )
+    {
+        cout << "Files to be compared could not be opened" << endl;
+        return false;
+    }
+
+    while (file1 >> in1)
+    {
+        if (file2 >> in2)
+        {
+            if(in1 != in2)
+            {
+                if(isNumber(in1))
+                {
+                    if(isNumber(in2))
+                    {
+                        //both inputs are numbers
+                        //if in2 doesn't round to in1 file is wrong
+                        if (!cmpNum(in1,in2))
+                        {
+                            //file failed
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        //in1 is number, in2 is not, file is wrong
+                        //file failed
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(isNumber(in2))
+                    {
+                        //in1 is a string in2 is a number, file is wrong
+                        //file failed
+                        return false;
+                    }
+                    else
+                    {
+                        //in1 and in2 are strings
+                        //if in1 and in2 don't match with presentation errors
+                        if (!cmpString(in1,in2))
+                        {
+                            //file failed
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            //file is missing information
+            //file failed
+            return false;
+        }
+    }
+
+    //if the second file has additonal information
+    if (file2 >> in2)
+    {
+        //file failed
+        return false;
+    }
+    return true;
 }
