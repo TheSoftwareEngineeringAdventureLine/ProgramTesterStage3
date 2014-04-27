@@ -9,8 +9,8 @@ CFLAGS = -c
 #OBJECT FILES
 OBJS = test.o
 
-test: test.o
-	${CPP} -lm ${OBJS} -o test
+tester: test.o
+	${CPP} -lm ${OBJS} -o tester
 test.o: test.cpp
 clean:
 	rm -f *.o test

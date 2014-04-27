@@ -65,7 +65,7 @@
 #include <iostream>     //cout cin
 #include <fstream>      //file i/o
 #include <string>       //basic string handling. cstyle also used for directory
-
+#include <string.h>     //cstring handeling.
 #include <dirent.h>     //
 #include <cstring>      //
 #include<sys/stat.h>    //Handling directory traversal
@@ -73,6 +73,8 @@
 #include <vector>        //
 #include <sstream>
 #include <ctime>        //Handling Timestamps
+
+#include <sys/wait.h>   //handling wait function.
 
 #include <ctype.h>
 #include <algorithm>
@@ -163,6 +165,7 @@ bool cmpFiles(string s1, string s2);
  *****************************************************************************/
 int main(int argc, char ** argv)
 {
+
     //Commented out the old code for now.
     // we can get rid of it if we don't need it.
     /*
@@ -247,6 +250,7 @@ void mainMenu( string root )
     while(choice != 3 )
     {
         cout << "Welcome to the Program Testing Application!"<<endl;
+        cout << "Testing in: " << root << endl;
         cout << "Please chose a number: " << endl;
         cout << "1) Run Tests" << endl;
         cout << "2) Generate Test Cases" << endl;
@@ -307,7 +311,7 @@ int compile_file(string cpp_file)
 }
 
 /**************************************************************************//**
- * @author Julian Brackins
+ * @author Julian Brackins, Jonathan Tomes
  *
  * @par Description:
  * Using C++ String manipulation, a command is sent to the terminal in
@@ -328,6 +332,10 @@ int compile_file(string cpp_file)
  *****************************************************************************/
 int run_file(string cpp_file, string test_case)
 {
+    //child process id
+    int childPid = 0;
+    //child exit status.
+    int status;
     string run_cmd("./");
     int result;
     cpp_file = student_name(cpp_file);
@@ -343,12 +351,62 @@ int run_file(string cpp_file, string test_case)
     // "try using | "
     //construct run command, then send to system
     //./<filename> &> /dev/null  < case_x.tst > case_x.out
+    
+    //Commenting out because no longer needed. The program
+    // needs to be ran using fork and execv calls to catch
+    // infinite loops.
+    /*
     buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
     system(buffer1.c_str());
+    */
+    
+    //fork from the parent process.
+    childPid = fork();
+    
+    if( childPid = 0 )
+    {
+        //construct the arguments for the command execv;
+        buffer1 += run_cmd;
+        char * args[7];
+        strcpy(args[0], buffer1.c_str() );
+        strcpy( args[1], "&>" );
+        strcpy( args[2], "/dev/null");
+        strcpy( args[3],"<");
+        strcpy( args[4], test_case.c_str() );
+        strcpy(args[5], ">");
+        strcpy(args[6], case_out.c_str());
+        
+        execv(buffer1.c_str(), args );
+        //if the execv fails.. this line will be displayed.
+        cout << "Execv command failed to execute!" << endl;
+        
+    }
+    //sleep for 5 seconds.
+    sleep(5);
+    
+    //use waitpid to get the child processes' status.
+    waitpid(childPid, &status, WNOHANG );
+    
+    
+    
     string remove("rm " + case_out);
-
+    
+    //check the exit status of the child process.
+    //if it exited normally.. check the result of the test
+    //else fail it for the test.
+    //The WIFEXITED(status) macro returns true if
+    // the child exited with a normal exit
+    // the normal exits are exit(3), exit(2), or by returning from main.
+    
+    if( WIFEXITED(status) )
+    {
     //0 = Fail, 1 = Pass, 2 = Pass with presentation error
     result =  result_compare(test_case);
+    }
+    else //if the child process did not exit normally... it failed the test
+    {
+        result = 0;
+    }
     system(remove.c_str());
     return result;
 }
