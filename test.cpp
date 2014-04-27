@@ -103,7 +103,7 @@ bool isGolden(string& golden_name, string &path, string home);
 bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream &fout);
 void generateFiles(string testPath, string goldenName);
 void generate_ans(string cpp_file, string test_case);
-void generate_char_tests( string testPath, string goldenName );
+
 
 /*Directory Traversal Code*/
 bool change_dir(string dir_name);
@@ -211,7 +211,7 @@ int main(int argc, char ** argv)
         string directory = argv[1];
         
         //check for a full path. Full Paths should start with a "/"
-        if( directory[0]=="/")
+        if( directory[0]=='/')
         {
             root = directory;
         }
@@ -1610,7 +1610,8 @@ void generateFiles(string testPath, string goldenName)
         {
             cout <<"Do you want the length to be EXACTLY "
                     << maxLength << "?" << endl;
-            cout << "1) Yes I want my strings to be exactly " << maxLength << endl;
+            cout << "1) Yes I want my strings to be exactly " << maxLength 
+                    << endl;
             cout << "2) No I want my strings to at most " << maxLength << endl;
             
             if( choice == 1 )
@@ -1644,8 +1645,60 @@ void generateFiles(string testPath, string goldenName)
         
         numFiles = choice;
         
+        //Start generating tests.
+        srand(time(NULL));
         
+        //stole a chunk of this from above... 
+        // wouldn't need to if it was a separate function.
+        //added to the path name to put .tst files 
+        //in the test directory created above
+	string testDir = "/test";
         
+        for( int i = 0; i < numFiles; i++)
+        {
+                convert << i;
+                tempPath = testPath + testDir + generatedNameBase + 
+                        convert.str();
+                toTest = tempPath;
+                toTest += tst;
+                openTest.open( toTest.c_str() );
+                // this handles naming conflicts
+                if(openTest)
+                {
+                        numFiles++;
+                        openTest.close();
+                        convert.str("");
+                        continue;
+                }
+                openTest.close();
+                testFout.open( toTest.c_str() );
+                //End of stealing stuff from above.
+                
+                //Starting to generate random characters to a string.
+                
+                string testString = "";
+                int length;
+                
+                if(variableLeng)//if the strings can be off different sizes
+                {
+                    length = rand() % maxLength +1; //make the length up to max
+                }
+                
+                for( int j = 0; j < length; j++)
+                {
+                    //generate  random character.
+                    char temp = (char) (rand() % 26 + 97);
+                    testString += temp;
+                }
+                //write the string to the test file
+                testFout << testString;
+                
+                //generate an answer file.
+                convert.str("");
+                generate_ans(goldenName, toTest);
+                testFout.close();
+        
+        }
     }
 
     change_dir(homepath);
