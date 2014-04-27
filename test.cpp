@@ -288,13 +288,14 @@ void mainMenu( string root )
  * @author Julian Brackins
  *
  * @par Description:
+ * Function Edited by Andrew Koc
  * Using C++ String manipulation, a g++ compile command is sent to the
  * terminal in order to compile the file brought in by the argument
  * cpp_file.
  *
  * The compile line is as follows
  * compile_file(example.cpp);
- * "g++ -o example example.cpp"
+ * "g++ -pg -fprofile-arcs -ftest-coverage example.cpp example"
  *
  * @param[in] cpp_file - name of .cpp file to be compiled by program
  *
@@ -303,10 +304,11 @@ void mainMenu( string root )
  *****************************************************************************/
 int compile_file(string cpp_file)
 {
-    string buffer("g++ -o");
+    //g++ -pg -fprofile-arcs -ftest-coverage file.cpp -o file
+    string buffer("g++ -pg -fprofile-arcs -ftest-coverage");
     string out_name = cpp_file;
-    cpp_file.erase(cpp_file.length()-4);
-    buffer += " " + cpp_file + " " + out_name;
+    out_name.erase(out_name.length()-4);
+    buffer += " " + cpp_file + " -o " + out_name;
     return system(buffer.c_str());
 }
 
