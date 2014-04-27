@@ -87,6 +87,9 @@ using namespace std;
 /*************************************************************************//**
 ********************************FUNCTION PROTOTYPES***************************
 ******************************************************************************/
+/* Menu Functions */
+void mainMenu( string root);
+
 
 /*Compiling and Running File*/
 int compile_file(string cpp_file);
@@ -100,6 +103,7 @@ bool isGolden(string& golden_name, string &path, string home);
 bool test_code(string cpp_file, vector<string> test_cases, int &total, ofstream &fout);
 void generateFiles(string testPath, string goldenName);
 void generate_ans(string cpp_file, string test_case);
+void generate_char_tests( string testPath, string goldenName );
 
 /*Directory Traversal Code*/
 bool change_dir(string dir_name);
@@ -145,8 +149,8 @@ bool cmpNum(string s1, string s2);
 bool cmpFiles(string s1, string s2);
 
 /**************************************************************************//**
- * @authors Julian Brackins, Benjamin Sherman, James Tillma, & Anthony Morast
- *
+ * @authors Julian Brackins, Benjamin Sherman, James Tillma, Anthony Morast,
+ *              Jonathan Tomes
  * @par Description:
  * Main function.
  * reads argument from command line into test_loop().
@@ -159,6 +163,9 @@ bool cmpFiles(string s1, string s2);
  *****************************************************************************/
 int main(int argc, char ** argv)
 {
+    //Commented out the old code for now.
+    // we can get rid of it if we don't need it.
+    /*
     usage();
     bool generate;
     // user only entered a directory argument
@@ -180,8 +187,97 @@ int main(int argc, char ** argv)
         return -1;
     }
     test_loop(format_argv(argv[1]), generate);
+     * */
+    
+    //user entered too many arguments
+    
+    string root;
+    
+    if(argc > 2 )
+    {
+        cout << "Error in usage,  correct usage: " << argv[0] 
+                << " <optional: path to directory>" << endl;
+        return 0;
+    }
+    
+    char cCurrentPath[FILENAME_MAX];
+    
+    getcwd(cCurrentPath, sizeof(cCurrentPath) );
+    string current = cCurrentPath;
+    
+    if( argc == 2 )
+    {
+        //get the directory
+        string directory = argv[1];
+        
+        //check for a full path. Full Paths should start with a "/"
+        if( directory[0]=="/")
+        {
+            root = directory;
+        }
+        else //the path specified is a relative path.
+        {
+            root = current + "/" + argv[1];
+        }
+        
+    }
+    else if( argc == 1) //Should use the current directory if one is not
+                        //provided.
+    {
+        root = current;
+    }
+    
+    mainMenu(root);
+    
 
     return 0;
+}
+
+/*******************************************************************************
+ *@author Jonathan Tomes
+ *@par Description:
+ *A basic main menu function. Handles user input and interaction. Ask the
+ * user if they want to run tests, generate tests, or exit.                                                                         
+ ******************************************************************************/
+void mainMenu( string root )
+{
+    int choice = 0;
+    bool generate;
+    
+    while(choice != 3 )
+    {
+        cout << "Welcome to the Program Testing Application!"<<endl;
+        cout << "Please chose a number: " << endl;
+        cout << "1) Run Tests" << endl;
+        cout << "2) Generate Test Cases" << endl;
+        cout << "3) Exit" << endl;
+        cin >> choice;
+        
+        if( choice == 1)
+        {
+            cout << "Running Tests..." << endl;
+            generate = false;
+            test_loop( root, generate );
+        }
+        else if( choice == 2 )
+        {
+            cout << "Running test generation..." << endl;
+            generate = true;
+            test_loop( root, generate );
+        }
+        else if( choice == 3 )
+        {
+            cout << "Exiting..." << endl;
+            
+        }
+        else
+        {
+            cout << "Not a valid option. please enter 1, 2, or 3" << endl;
+            choice = 0;
+        }
+    }
+    
+    return;
 }
 
 /**************************************************************************//**
@@ -1323,7 +1419,7 @@ void dir_list()
 }
 
 /**************************************************************************//**
- * @author James Tillma
+ * @author James Tillma, Jonathan Tomes
  *
  * @par Description
  * This function handles the generating of a number of test cases. It handles
@@ -1355,12 +1451,19 @@ void generateFiles(string testPath, string goldenName)
     ofstream testFout;
     ifstream openTest;
     ostringstream convert;
+    
+    //added by Jonathan Tomes
+    int choice = 0;
 
 	system("mkdir test &>/dev/null"); //make the directory to store test files if it doesnt exist
 
 
     compile_file(goldenName);
+    
+    //Jonathan Tomes going to comment out this first chunk
+    // to make it easier to modify and add different types.
     //get the type of test case to use (used in random number generation)
+    /*
     cout << "Choose a type of test case, \"int\" or \"float\":" << endl;
     do
     {
@@ -1371,6 +1474,27 @@ void generateFiles(string testPath, string goldenName)
             cout << "Enter either \"int\" or \"float\" to use as the type for test cases: " << endl;
         }
     } while (type != integer && type != floating );
+    */
+    while( choice == 0)
+    {
+        cout << "Please choose a type of test: " << endl;
+        cout << " 1) integer" << endl;
+        cout << " 2) floating point" << endl;
+        cout << " 3) character string" << endl;
+        cin >> choice;
+        
+        if ( choice != 1 || choice != 2 || choice != 3)
+        {
+            cout << "Please enter 1, 2, or 3." << endl;
+            choice = 0;
+        }
+    }
+    if( choice == 1 || choice == 2 )
+    {
+        if( choice == 1 )
+            type = integer;
+        if( choice == 2 )
+            type = floating;
     //get the number of test cases to generate per file
     cout<< "Enter a number of test cases to use per file: " << endl;
     do
@@ -1453,6 +1577,75 @@ void generateFiles(string testPath, string goldenName)
         convert.str("");
         generate_ans(goldenName, toTest);
         testFout.close();
+    }
+    }
+    
+    else if( choice == 3)
+    {
+        //Generate string tests here.
+        choice = -1;
+        int maxLength;
+        
+        //variableLeng stores weather or not the strings should have
+        // random length;
+        bool variableLeng = false;
+        
+        // get the length and store it.
+        while( choice < 1 || choice > 100);
+        {
+            cout<< "How long would you like the strings to be?" << endl;
+            cout << "Please enter a number between 1 and 100: ";
+            cin >> choice;
+            
+            if( choice >= 1 || choice <= 100 )
+                cout << "Please choice a number between 1 and 100" << endl;
+        }
+        maxLength = choice;
+        
+        //Ask the user if they want the length to be absolute, or
+        // up to the number specified.
+        
+        choice = 0;
+        while( choice == 0 )
+        {
+            cout <<"Do you want the length to be EXACTLY "
+                    << maxLength << "?" << endl;
+            cout << "1) Yes I want my strings to be exactly " << maxLength << endl;
+            cout << "2) No I want my strings to at most " << maxLength << endl;
+            
+            if( choice == 1 )
+            {
+                variableLeng = false;
+            }
+            else if ( choice == 2)
+            {
+                variableLeng = true;
+            }
+            else
+            {
+                cout << "Please enter 1 or 2" << endl;
+                choice = 0;
+            }
+        }
+        
+        choice = 0;
+       //get the number of files to generate.
+        while( choice == 0 )
+        {
+            cout << "How many test files do you want?" << endl;
+            cout << "Please enter a number between 1 and 100: ";
+            cin >> choice;
+            if( choice < 1 || choice > 100 )
+            {
+                cout << "Please enter a number between 1 and 100!" << endl;
+                choice = 0;
+            }
+        }
+        
+        numFiles = choice;
+        
+        
+        
     }
 
     change_dir(homepath);
