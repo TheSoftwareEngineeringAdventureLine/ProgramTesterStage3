@@ -13,6 +13,6 @@ tester: test.o
 	${CPP} -lm ${OBJS} -o tester
 test.o: test.cpp
 clean:
-	rm -f *.o test
+	rm -f *.o tester
 realclean:
-	rm -f *.o test *~ *.swp
+	rm -f *.o tester *~ *.swp

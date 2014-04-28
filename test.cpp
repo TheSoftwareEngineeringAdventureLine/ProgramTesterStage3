@@ -1853,7 +1853,7 @@ bool specFileCheck(string &specName )
 void generateMenuTestCases( string goldenName , string specName )
 {
     int numTestCases;
-    string temp;
+    float temp;
     ifstream specFile;
     ofstream outFile;
     string pathName;
@@ -1861,8 +1861,8 @@ void generateMenuTestCases( string goldenName , string specName )
     ostringstream convert;
     string command;
     string testString;
-    float max;
-    float min;
+    int max;
+    int min;
     float tempRand;
     int stringSize;
     int i, j;
@@ -1885,9 +1885,8 @@ void generateMenuTestCases( string goldenName , string specName )
     cout << "Please enter the number of test cases to be generated: ";
     do
     {
-        cin >> temp;
+        cin >> numTestCases;
         cout << endl;
-        numTestCases = atoi( temp.c_str() );
         if( numTestCases <= 0 )
         {
             cout << "Enter a number greater then 0: ";
@@ -1896,14 +1895,15 @@ void generateMenuTestCases( string goldenName , string specName )
     }while( numTestCases <= 0 );
     
     cout << "Enter the max for ints, floats, and doubles: ";
-    cin >> temp;
-    max = atof( temp.c_str() );
+    cin >> max;
     cout << endl;
+    
     cout << "Enter the min for ints, floats, and doubles: ";
-    min = atof( temp.c_str() );
+    cin >> min;
     cout << endl;
+    
     cout << "Enter the length of the strings: ";
-    stringSize = atoi( temp.c_str() );
+    cin >> stringSize;
     cout << endl;
     
     
@@ -1926,7 +1926,7 @@ void generateMenuTestCases( string goldenName , string specName )
             if ( command == "int" )
             {
                 // output a random int
-                outFile << rand() % (int)(max - min) + (int)min << endl;
+                outFile << rand() % (max - min) + min << endl;
             }
             else if ( command == "float" || command == "double" )
             {
@@ -1937,7 +1937,7 @@ void generateMenuTestCases( string goldenName , string specName )
                     if ( tempRand == 1)
                         tempRand--;
                 }
-                    outFile << tempRand + fmod(rand(), (max - min)) + min << endl;
+                    outFile << tempRand + fmod(rand(), (float)(max - min)) + (float)min << endl;
                     tempRand = 0;
             }
             else if ( command == "string" )
