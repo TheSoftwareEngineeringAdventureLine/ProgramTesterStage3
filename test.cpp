@@ -334,8 +334,15 @@ int run_file(string cpp_file, string test_case)
 {
     //child process id
     int childPid = 0;
+    //Process id for wait
+    int wait_pid = 0;
     //child exit status.
     int status;
+    //timer to wait
+    int timer;
+    const int MAX_TIME = 10;
+    bool timeLimit = false;
+    
     string run_cmd("./");
     int result;
     cpp_file = student_name(cpp_file);
@@ -379,34 +386,44 @@ int run_file(string cpp_file, string test_case)
         execv(buffer1.c_str(), args );
         //if the execv fails.. this line will be displayed.
         cout << "Execv command failed to execute!" << endl;
-        
+        exit(-1);
     }
-    //sleep for 5 seconds.
-    sleep(5);
     
-    //use waitpid to get the child processes' status.
-    waitpid(childPid, &status, WNOHANG );
-    
-    
+    timeLimit = false;
+    timer = 0;
+    while(true)
+    {
+        sleep(1);
+        timer++;
+        wait_pid= waitpid(childPid, &status, WNOHANG );
+        
+        //child exited normally
+        if( wait_pid != 0 )
+        {
+            break;
+        }
+        
+        //Time limit exceeded, set result to fail
+        //kill the child process
+        if( timer >= MAX_TIME )
+        {
+            timeLimit = true;
+            kill(childPid, 9 );
+        }
+    }
     
     string remove("rm " + case_out);
     
-    //check the exit status of the child process.
-    //if it exited normally.. check the result of the test
-    //else fail it for the test.
-    //The WIFEXITED(status) macro returns true if
-    // the child exited with a normal exit
-    // the normal exits are exit(3), exit(2), or by returning from main.
     
-    if( WIFEXITED(status) )
-    {
+  
     //0 = Fail, 1 = Pass, 2 = Pass with presentation error
-    result =  result_compare(test_case);
-    }
-    else //if the child process did not exit normally... it failed the test
+    if( !timeLimit )
     {
-        result = 0;
+        result =  result_compare(test_case);
     }
+    else
+        result = 0;
+   
     system(remove.c_str());
     return result;
 }
