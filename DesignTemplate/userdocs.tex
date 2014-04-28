@@ -20,5 +20,7 @@ Finally, if the user wishes to have test cases generated, the root directory sho
 
 As a user, you must complie this program in a Linux environment. To run this program the first command line argument must be the name of the dirctory you wish to test (note this program must be executed in a directory "one step back" from the directory you wish to test. If you want to generate test cases, a second command line argument "-g" must be specified when executing the program. 
 
+
+
 \subsection {Test Case Generation}
 If a "-g" is the second command line arugment and a .cpp file exists within the directory being traversed prompts will be displayed to determine what type of test cases you want to generate. You may generate floting point or integer values, decide in what range you want the values generated, decide how many values to generate in each .tst file, and choose how many .tst files you want to generate. After all these values are specified, the program will create each .tst file, compile the "golden.cpp" file, run each test file through the golden.cpp executable, and output to individual answer (.ans) files.
