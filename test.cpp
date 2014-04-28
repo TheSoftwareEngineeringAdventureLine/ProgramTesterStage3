@@ -80,6 +80,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <cstdio>
+
 /*************************************************************************//**
 *********************************NAMESPACE************************************
 ******************************************************************************/
@@ -140,6 +142,10 @@ string format_argv(char *argv);
 /*Not used in Sprint 1*/
 //bool event_loop();
 void dir_list();
+
+/* Menu Driven Testing */
+bool specFileCheck( string &specName );
+void generateMenuTestCases( string goldenName, string specName );
 
 /*Checking For Presentation Errors*/
 bool isNumber (string s);
@@ -533,6 +539,8 @@ bool test_loop(string class_folder, bool generate)
     string golden_name;  						//if there is a .cpp, golden exists
     string golden_dir;	//if golden.cpp exists it exists in golden_dir
     string student_logname;
+    
+    string specName;
 
     vector<string> sub_dir;                  //vector of all the subdirectories
     vector<string> test_cases;               //vector of test cases in current directory
@@ -553,7 +561,15 @@ bool test_loop(string class_folder, bool generate)
         //call James' function here!
         if (golden)
 		{
-            generateFiles(homepath +class_folder, golden_name);
+            // test for if there is a .spec file
+            if ( specFileCheck( specName ) == true )
+            {
+                generateMenuTestCases( golden_name , specName );
+            }
+            else
+            {
+                generateFiles(homepath +class_folder, golden_name);
+            }
 		}
         else
             cout << "\nNo golden source code found. \nSkipping test case generation . . ." << endl;
@@ -1568,93 +1584,93 @@ void generateFiles(string testPath, string goldenName)
     }
     if( choice == 1 || choice == 2 )
     {
-        if( choice == 1 )
-            type = integer;
-        if( choice == 2 )
-            type = floating;
-    //get the number of test cases to generate per file
-    cout<< "Enter a number of test cases to use per file: " << endl;
-    do
-    {
-        cin.getline(temp, 100);
-        numCases = atoi(temp);
-        if ( numCases <= 0 )
+            if( choice == 1 )
+                type = integer;
+            if( choice == 2 )
+                type = floating;
+        //get the number of test cases to generate per file
+        cout<< "Enter a number of test cases to use per file: " << endl;
+        do
         {
-            cout << "The number of cases must be positive, please re-enter: " << endl;
-        }
-    } while ( numCases <= 0);
-    //get the minimum value to use in test-case creation
-    cout<< "Enter the minimum value to use in test-case creation: " << endl;
-    cin.getline(temp, 100);
-    min = atof(temp);
-    //get the theoretical maximum value
-    cout << "Enter the maximum value to use in test-case creation: " << endl;
-    do
-    {
+            cin.getline(temp, 100);
+            numCases = atoi(temp);
+            if ( numCases <= 0 )
+            {
+                cout << "The number of cases must be positive, please re-enter: " << endl;
+            }
+        } while ( numCases <= 0);
+        //get the minimum value to use in test-case creation
+        cout<< "Enter the minimum value to use in test-case creation: " << endl;
         cin.getline(temp, 100);
-        max = atof(temp);
-        if( max <= min )
+        min = atof(temp);
+        //get the theoretical maximum value
+        cout << "Enter the maximum value to use in test-case creation: " << endl;
+        do
         {
-            cout << "The maximum must be greater than the minimum, re-enter the maximum: " << endl;
-        }
-    } while ( max <= min );
-    //get the number of files to create
-    cout << "Enter the number of test case files to create: " << endl;
-    do
-    {
-        cin.getline(temp, 100);
-        numFiles = atoi(temp);
-        if ( numFiles <= 0)
+            cin.getline(temp, 100);
+            max = atof(temp);
+            if( max <= min )
+            {
+                cout << "The maximum must be greater than the minimum, re-enter the maximum: " << endl;
+            }
+        } while ( max <= min );
+        //get the number of files to create
+        cout << "Enter the number of test case files to create: " << endl;
+        do
         {
-            cout << "The number of files to generate must be positive, re-enter the number: " << endl;
-        }
-    } while ( numFiles <= 0 );
-    srand(time(NULL));
+            cin.getline(temp, 100);
+            numFiles = atoi(temp);
+            if ( numFiles <= 0)
+            {
+                cout << "The number of files to generate must be positive, re-enter the number: " << endl;
+            }
+        } while ( numFiles <= 0 );
+        srand(time(NULL));
 
 
-	//added to the path name to put .tst files in the test directory created above
-	string testDir = "/test";
+        //added to the path name to put .tst files in the test directory created above
+        string testDir = "/test";
 
-    for( int i = 0; i < numFiles; i++)
-    {
-        convert << i;
-        tempPath = testPath + testDir + generatedNameBase + convert.str();
-        toTest = tempPath;
-        toTest += tst;
-        openTest.open( toTest.c_str() );
-        // this handles naming conflicts
-        if(openTest)
+        for( int i = 0; i < numFiles; i++)
         {
-            numFiles++;
+            convert << i;
+            tempPath = testPath + testDir + generatedNameBase + convert.str();
+            toTest = tempPath;
+            toTest += tst;
+            openTest.open( toTest.c_str() );
+            // this handles naming conflicts
+            if(openTest)
+            {
+                numFiles++;
+                openTest.close();
+                convert.str("");
+                continue;
+            }
             openTest.close();
+            testFout.open( toTest.c_str() );
+            //generate random values and output to test file
+            for( int j = 0; j < numCases; j++ )
+            {
+                while ( type == floating && tempRand == 0)
+                {
+                    tempRand = float (rand()) / float (RAND_MAX);
+                    if ( tempRand == 1)
+                        tempRand--;
+                }
+                if(type == floating)
+                {
+                    testFout << tempRand + fmod(rand(), (max - min)) + min << endl;
+                    tempRand = 0;
+                }
+                else
+                {
+                    testFout << rand() % (int)(max - min) + (int)min << endl;
+                }
+            }
             convert.str("");
-            continue;
+            generate_ans(goldenName, toTest);
+            testFout.close();
         }
-        openTest.close();
-        testFout.open( toTest.c_str() );
-		//generate random values and output to test file
-        for( int j = 0; j < numCases; j++ )
-        {
-            while ( type == floating && tempRand == 0)
-            {
-                tempRand = float (rand()) / float (RAND_MAX);
-                if ( tempRand == 1)
-                    tempRand--;
-            }
-            if(type == floating)
-            {
-                testFout << tempRand + fmod(rand(), (max - min)) + min << endl;
-                tempRand = 0;
-            }
-            else
-            {
-                testFout << rand() % (int)(max - min) + (int)min << endl;
-            }
-        }
-        convert.str("");
-        generate_ans(goldenName, toTest);
-        testFout.close();
-    }
     }
     
     else if( choice == 3)
@@ -1779,6 +1795,178 @@ void generateFiles(string testPath, string goldenName)
     }
 
     change_dir(homepath);
+}
+
+/**************************************************************************//**
+ * @author Erik Hattervig
+ * Modified from get_golden
+ *
+ * @par Description:
+ * Checks for the presents of a .spec file to promped the program to generate
+ * tests based on the spec file
+******************************************************************************/
+bool specFileCheck(string &specName )
+{
+    DIR *dp;
+    struct dirent *dirp;
+    string path(get_pathname());
+    string slash = "/";
+    path += slash;
+    string file_name;
+
+    if ((dp = opendir(path.c_str())) == NULL)
+    {
+        cout << "Error opening directory...\n";
+        return false;
+    }
+    else
+    {
+        //cout << "files in: " << path << "\n";
+        while ((dirp = readdir(dp)) != NULL)
+        {
+            if (dirp->d_name != string(".") && dirp->d_name != string(".."))
+            {
+                if (is_dir(path + dirp->d_name) == false)    //NOT a directory
+                {
+                    file_name =  dirp->d_name;
+                    string ext (file_name.end()-5, file_name.end());//get ext
+                    if(ext.compare(".spec") == 0)        //check if it's a .spec
+                    {
+                        specName = file_name;
+                        closedir(dp);
+                        return true;
+                    }
+                }
+            }
+        }
+        closedir(dp);
+    }
+    return false;
+}
+
+/**************************************************************************//**
+ * @author Erik Hattervig
+ *
+ * @par Description:
+ * 
+******************************************************************************/
+void generateMenuTestCases( string goldenName , string specName )
+{
+    int numTestCases;
+    string temp;
+    ifstream specFile;
+    ofstream outFile;
+    string pathName;
+    string homePath = get_pathname();
+    ostringstream convert;
+    string command;
+    string testString;
+    float max;
+    float min;
+    float tempRand;
+    int stringSize;
+    int i, j;
+    
+    tempRand = 0;
+    
+    // print out message saying that spec file was detected
+    cout << "Spec file detected, creating menu test cases" << endl;
+    
+    //open the spec file
+    specFile.open( specName.c_str() );
+    
+    if ( specFile.is_open() == false )
+    {
+        cout << "Unable to open spec file" << endl;
+        return;
+    }
+    
+    // prompt for number of test cases to be used and get it
+    cout << "Please enter the number of test cases to be generated: ";
+    do
+    {
+        cin >> temp;
+        cout << endl;
+        numTestCases = atoi( temp.c_str() );
+        if( numTestCases <= 0 )
+        {
+            cout << "Enter a number greater then 0: ";
+        }
+        
+    }while( numTestCases <= 0 );
+    
+    cout << "Enter the max for ints, floats, and doubles: ";
+    cin >> temp;
+    max = atof( temp.c_str() );
+    cout << endl;
+    cout << "Enter the min for ints, floats, and doubles: ";
+    min = atof( temp.c_str() );
+    cout << endl;
+    cout << "Enter the length of the strings: ";
+    stringSize = atoi( temp.c_str() );
+    cout << endl;
+    
+    
+    for( i = 0 ; i < numTestCases ; i++ )
+    {
+        // open up output file
+        convert << i;
+        pathName = homePath + "/test/GENERATED_TEST_FILE_" + convert.str() + ".tst";
+        outFile.open( pathName.c_str() );
+        
+        // set specFile to beginning 
+        specFile.seekg( 0 , ios::beg );
+        
+        // output a test case of 0 for first menu option
+        outFile << "0" << endl;
+        
+        specFile >> command;
+        while( !specFile.eof() )
+        {
+            if ( command == "int" )
+            {
+                // output a random int
+                outFile << rand() % (int)(max - min) + (int)min << endl;
+            }
+            else if ( command == "float" || command == "double" )
+            {
+                // output a random float
+                while ( tempRand == 0)
+                {
+                    tempRand = float (rand()) / float (RAND_MAX);
+                    if ( tempRand == 1)
+                        tempRand--;
+                }
+                    outFile << tempRand + fmod(rand(), (max - min)) + min << endl;
+                    tempRand = 0;
+            }
+            else if ( command == "string" )
+            {
+                // ouput a random string
+                for( int j = 0; j < stringSize; j++)
+                {
+                    //generate  random character.
+                    char temp = (char) (rand() % 26 + 97);
+                    testString += temp;
+                }
+                //write the string to the test file
+                outFile << testString << endl;
+            }
+            else
+            {
+                // output the menu option to the tst
+                outFile << command;
+            }
+            
+            
+            specFile >> command;
+        }
+        generate_ans( goldenName, pathName);
+        outFile.close();
+    }
+    
+    
+    return;
 }
 
 /**************************************************************************//**
