@@ -235,7 +235,8 @@ int main(int argc, char ** argv)
     {
         root = current;
     }
-    
+    char * temp = strcpy( cCurrentPath, root.c_str() );
+    root = format_argv( cCurrentPath );
     mainMenu(root);
     
 
@@ -376,7 +377,14 @@ int run_file(string cpp_file, string test_case)
     */
     
     //fork from the parent process.
+    ofstream fout(case_out.c_str() );
+    if(!(fout.is_open() ) )
+    {
+        cerr << "Could not open: " << case_out << endl << "Exiting" <<endl;
+        exit(0);
+    }
     childPid = fork();
+    
     
     if( childPid = 0 )
     {
@@ -420,7 +428,7 @@ int run_file(string cpp_file, string test_case)
         }
     }
     
-    string remove("rm " + case_out);
+    
     
     
   
@@ -431,7 +439,7 @@ int run_file(string cpp_file, string test_case)
     }
     else
         result = 0;
-   
+    string remove("rm " + case_out);
     system(remove.c_str());
     return result;
 }
@@ -1576,7 +1584,7 @@ void generateFiles(string testPath, string goldenName)
         cout << " 3) character string" << endl;
         cin >> choice;
         
-        if ( choice != 1 || choice != 2 || choice != 3)
+        if ( choice != 1 && choice != 2 && choice != 3)
         {
             cout << "Please enter 1, 2, or 3." << endl;
             choice = 0;
