@@ -371,10 +371,10 @@ int run_file(string cpp_file, string test_case)
     //Commenting out because no longer needed. The program
     // needs to be ran using fork and execv calls to catch
     // infinite loops.
-    /*
+ 
     buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
     system(buffer1.c_str());
-    */
+    
     
     //fork from the parent process.
 /*
@@ -385,6 +385,7 @@ int run_file(string cpp_file, string test_case)
         exit(0);
     }
 */
+    /*
     childPid = fork();
     
     
@@ -431,7 +432,7 @@ int run_file(string cpp_file, string test_case)
     }
     
     
-    
+    */
     
   
     //0 = Fail, 1 = Pass, 2 = Pass with presentation error
@@ -440,7 +441,9 @@ int run_file(string cpp_file, string test_case)
         result =  result_compare(test_case);
     }
     else
+    {
         result = 0;
+    }
     string remove("rm " + case_out);
     //system(remove.c_str());
     return result;
