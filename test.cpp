@@ -377,12 +377,14 @@ int run_file(string cpp_file, string test_case)
     */
     
     //fork from the parent process.
+/*
     ofstream fout(case_out.c_str() );
     if(!(fout.is_open() ) )
     {
         cerr << "Could not open: " << case_out << endl << "Exiting" <<endl;
         exit(0);
     }
+*/
     childPid = fork();
     
     
@@ -440,7 +442,7 @@ int run_file(string cpp_file, string test_case)
     else
         result = 0;
     string remove("rm " + case_out);
-    system(remove.c_str());
+    //system(remove.c_str());
     return result;
 }
 
@@ -543,7 +545,7 @@ bool test_loop(string class_folder, bool generate)
     bool passed;
 
     ofstream fout, student_fout;
-    string log_name(log_filename(class_folder));
+    string log_name(log_filename(class_folder.substr(class_folder.find_last_of('/'))));
     string golden_name;  						//if there is a .cpp, golden exists
     string golden_dir;	//if golden.cpp exists it exists in golden_dir
     string student_logname;
@@ -556,13 +558,11 @@ bool test_loop(string class_folder, bool generate)
     vector<string> source_paths;				//path to student source code
     vector<string> crit_cases;
 
-    string homepath(get_pathname() + "/");  //create string with home path name
-    string subpath(get_pathname() + "/");   //create a string with current directory path
-    string progpath(get_pathname() + "/" + class_folder + "/"); //string with path to prog file
+    string homepath = class_folder + "/";  //create string with home path name
 
     if(generate)
     {
-        golden_dir = homepath + class_folder + "/";	//create path to find golden.cpp
+        golden_dir = homepath;	//create path to find golden.cpp
         //golden = true if golden.cpp exists, golden.cpp filename will be golden_name
         bool golden = isGolden(golden_name, golden_dir, get_pathname());
 
@@ -576,7 +576,7 @@ bool test_loop(string class_folder, bool generate)
             }
             else
             {
-                generateFiles(homepath +class_folder, golden_name);
+                generateFiles(class_folder, golden_name);
             }
 		}
         else
@@ -585,7 +585,7 @@ bool test_loop(string class_folder, bool generate)
 
     vector_directories(class_folder, sub_dir);   //place all subdirectory names in vector
     //Open summary log file
-    fout.open((homepath + class_folder + "/" + log_name).c_str());    //open file
+    fout.open((homepath + log_name).c_str());    //open file
 
     //use this to find all the students source code, the path to the source code,
     // and the test files.. run the tests elsewhere.
@@ -603,7 +603,7 @@ bool test_loop(string class_folder, bool generate)
 
         else
         {
-            change_dir(homepath + sub_dir.back()); //change to next subdirectory in vector
+            change_dir(sub_dir.back()); //change to next subdirectory in vector
 
             vector_test_cases(test_cases, crit_cases); //vector .tst files in current directory
 
