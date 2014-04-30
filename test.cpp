@@ -2261,7 +2261,7 @@ double roundToPlace(double val, int n)
  * @par Description:
  * This function takes two strings assumed to be valid number values and checks
  * if the second value rounds to the first value.  This is done by determining
- * the number of digits after the decimal exsist in the first number, then
+ * the number of digits after the decimal exists in the first number, then
  * getting the double values of both strings and seeing if the second rounded
  * to the specified decimal place, is equal to the first number.
  *
@@ -2306,7 +2306,7 @@ bool cmpNum(string s1, string s2)
  *
  * @par Description:
  * This function reads in two files word by word to see if they match, allowing
- * for presentation errors such as, mispelled words, covered by the cmpString
+ * for presentation errors such as, misspelled words, covered by the cmpString
  * function, and rounding errors, covered by the cmpNum function.  If any set
  * of words don't match, by being the wrong word/number or being of different
  * types, one is a word the other is a number, or by having to little or
