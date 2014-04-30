@@ -379,29 +379,19 @@ int run_file(string cpp_file, string test_case)
     // needs to be ran using fork and execv calls to catch
     // infinite loops.
  
-<<<<<<< HEAD
-    
-=======
->>>>>>> d536466c9c276e095b99562d8802a311c5fcb92e
+
     buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
     system(buffer1.c_str());
     
     
     //fork from the parent process.
-<<<<<<< HEAD
+
     //Infinite Loop test NOT WORKING.
     //commented out so still viewable... but going back to original code.
     
-=======
-/*
-    ofstream fout(case_out.c_str() );
-    if(!(fout.is_open() ) )
-    {
-        cerr << "Could not open: " << case_out << endl << "Exiting" <<endl;
-        exit(0);
-    }
-*/
->>>>>>> d536466c9c276e095b99562d8802a311c5fcb92e
+
+
+
     /*
     childPid = fork();
     
@@ -466,15 +456,7 @@ int run_file(string cpp_file, string test_case)
     }
     */
     
-<<<<<<< HEAD
-   
 
-=======
-    
-    */
-    
->>>>>>> d536466c9c276e095b99562d8802a311c5fcb92e
-  
     //0 = Fail, 1 = Pass, 2 = Pass with presentation error
     //timeLimit will always be false for now, while
     //the infinite loop code is commented out.
@@ -487,19 +469,15 @@ int run_file(string cpp_file, string test_case)
     }
     else
     {
-<<<<<<< HEAD
         //cout << "Ran over time limit." << endl;
         result = 0;
         //cout << result << endl;
     }
     string remove("rm " + case_out);
     system(remove.c_str());
-=======
-        result = 0;
-    }
-    string remove("rm " + case_out);
-    //system(remove.c_str());
->>>>>>> d536466c9c276e095b99562d8802a311c5fcb92e
+
+    
+
     return result;
 }
 
