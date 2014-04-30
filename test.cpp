@@ -82,6 +82,8 @@
 
 #include <cstdio>
 
+#include <fcntl.h>
+
 /*************************************************************************//**
 *********************************NAMESPACE************************************
 ******************************************************************************/
@@ -352,6 +354,11 @@ int run_file(string cpp_file, string test_case)
     const int MAX_TIME = 10;
     bool timeLimit = false;
     
+    //file pointers
+    int fpt1, fpt2;
+    
+    
+    
     string run_cmd("./");
     int result;
     cpp_file = student_name(cpp_file);
@@ -372,11 +379,20 @@ int run_file(string cpp_file, string test_case)
     // needs to be ran using fork and execv calls to catch
     // infinite loops.
  
+<<<<<<< HEAD
+    
+=======
+>>>>>>> d536466c9c276e095b99562d8802a311c5fcb92e
     buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
     system(buffer1.c_str());
     
     
     //fork from the parent process.
+<<<<<<< HEAD
+    //Infinite Loop test NOT WORKING.
+    //commented out so still viewable... but going back to original code.
+    
+=======
 /*
     ofstream fout(case_out.c_str() );
     if(!(fout.is_open() ) )
@@ -385,6 +401,7 @@ int run_file(string cpp_file, string test_case)
         exit(0);
     }
 */
+>>>>>>> d536466c9c276e095b99562d8802a311c5fcb92e
     /*
     childPid = fork();
     
@@ -393,16 +410,33 @@ int run_file(string cpp_file, string test_case)
     {
         //construct the arguments for the command execv;
         buffer1 += run_cmd;
-        char * args[7];
+        char * args[4];
         strcpy(args[0], buffer1.c_str() );
-        strcpy( args[1], "&>" );
-        strcpy( args[2], "/dev/null");
-        strcpy( args[3],"<");
-        strcpy( args[4], test_case.c_str() );
-        strcpy(args[5], ">");
-        strcpy(args[6], case_out.c_str());
         
-        execv(buffer1.c_str(), args );
+         
+       
+        if ((fpt1 = open(test_case.c_str(), O_RDONLY)) == -1)
+        {
+                cerr << "Unable to open '" << test_case 
+                        << "' for reading." << endl;
+                exit(-1);
+        }
+        close(0);       // close child standard input
+        dup(fpt1);      // redirect the child input
+        close(fpt1);    // close unnecessary file descriptor
+        
+        if ((fpt2 = creat(case_out.c_str(), 0644)) == -1)
+          {
+                cerr << "Unable to open '" << case_out
+                        << "' for writing." << endl;
+                exit(-1);
+          }
+        close(1);       // close child standard output 
+        dup(fpt2);      // redirect the child output 
+        close(fpt2);    // close unnecessary file descriptor
+        
+       
+        execl( args[0], args[0], 0);
         //if the execv fails.. this line will be displayed.
         cout << "Execv command failed to execute!" << endl;
         exit(-1);
@@ -430,22 +464,42 @@ int run_file(string cpp_file, string test_case)
             kill(childPid, 9 );
         }
     }
+    */
     
+<<<<<<< HEAD
+   
+
+=======
     
     */
     
+>>>>>>> d536466c9c276e095b99562d8802a311c5fcb92e
   
     //0 = Fail, 1 = Pass, 2 = Pass with presentation error
+    //timeLimit will always be false for now, while
+    //the infinite loop code is commented out.
+    //couts were for debugging purposes.
     if( !timeLimit )
     {
-        result =  result_compare(test_case);
+        //cout << "Did not run over time limit" << endl;
+        result =  result_compare(case_out);
+        //cout << result << endl;
     }
     else
     {
+<<<<<<< HEAD
+        //cout << "Ran over time limit." << endl;
+        result = 0;
+        //cout << result << endl;
+    }
+    string remove("rm " + case_out);
+    system(remove.c_str());
+=======
         result = 0;
     }
     string remove("rm " + case_out);
     //system(remove.c_str());
+>>>>>>> d536466c9c276e095b99562d8802a311c5fcb92e
     return result;
 }
 
