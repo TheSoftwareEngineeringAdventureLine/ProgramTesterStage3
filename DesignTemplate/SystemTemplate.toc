@@ -1,5 +1,5 @@
-\contentsline {chapter}{Mission}{xi}{chapter*.5}
-\contentsline {chapter}{Document Preparation and Updates}{xiii}{chapter*.6}
+\contentsline {chapter}{Mission}{xiii}{chapter*.5}
+\contentsline {chapter}{Document Preparation and Updates}{xv}{chapter*.6}
 \contentsline {chapter}{\numberline {1}Overview and concept of operations}{1}{chapter.1}
 \contentsline {section}{\numberline {1.1}Scope}{1}{section.1.1}
 \contentsline {section}{\numberline {1.2}Purpose}{1}{section.1.2}
@@ -30,7 +30,7 @@
 \contentsline {subsection}{\numberline {3.2.1}Customer or End User (Product Owner)}{7}{subsection.3.2.1}
 \contentsline {subsection}{\numberline {3.2.2}Management or Instructor (Scrum Master)}{7}{subsection.3.2.2}
 \contentsline {subsection}{\numberline {3.2.3}Developers --Testers}{7}{subsection.3.2.3}
-\contentsline {section}{\numberline {3.3}Business Need}{7}{section.3.3}
+\contentsline {section}{\numberline {3.3}Business Need}{8}{section.3.3}
 \contentsline {section}{\numberline {3.4}Requirements and Design Constraints}{8}{section.3.4}
 \contentsline {subsection}{\numberline {3.4.1}System Requirements}{8}{subsection.3.4.1}
 \contentsline {subsection}{\numberline {3.4.2}Network Requirements}{8}{subsection.3.4.2}
@@ -39,8 +39,8 @@
 \contentsline {section}{\numberline {3.5}User Stories}{8}{section.3.5}
 \contentsline {subsection}{\numberline {3.5.1}User Story \#1}{8}{subsection.3.5.1}
 \contentsline {subsubsection}{\numberline {3.5.1.a}User Story \#1 Breakdown}{8}{subsubsection.3.5.1.1}
-\contentsline {subsection}{\numberline {3.5.2}User Story \#2}{8}{subsection.3.5.2}
-\contentsline {subsubsection}{\numberline {3.5.2.a}User Story \#2 Breakdown}{8}{subsubsection.3.5.2.1}
+\contentsline {subsection}{\numberline {3.5.2}User Story \#2}{9}{subsection.3.5.2}
+\contentsline {subsubsection}{\numberline {3.5.2.a}User Story \#2 Breakdown}{9}{subsubsection.3.5.2.1}
 \contentsline {subsection}{\numberline {3.5.3}User Story \#3}{9}{subsection.3.5.3}
 \contentsline {subsubsection}{\numberline {3.5.3.a}User Story \#3 Breakdown}{9}{subsubsection.3.5.3.1}
 \contentsline {subsection}{\numberline {3.5.4}User Story \#4}{9}{subsection.3.5.4}
@@ -49,6 +49,14 @@
 \contentsline {subsubsection}{\numberline {3.5.5.a}User Story \#5 Breakdown}{9}{subsubsection.3.5.5.1}
 \contentsline {subsection}{\numberline {3.5.6}User Story \#6}{9}{subsection.3.5.6}
 \contentsline {subsubsection}{\numberline {3.5.6.a}User Story \#6 Breakdown}{9}{subsubsection.3.5.6.1}
+\contentsline {subsection}{\numberline {3.5.7}User Story \#7}{9}{subsection.3.5.7}
+\contentsline {subsubsection}{\numberline {3.5.7.a}User Story \#7 Breakdown}{9}{subsubsection.3.5.7.1}
+\contentsline {subsection}{\numberline {3.5.8}User Story \#8}{10}{subsection.3.5.8}
+\contentsline {subsubsection}{\numberline {3.5.8.a}User Story \#8 Breakdown}{10}{subsubsection.3.5.8.1}
+\contentsline {subsection}{\numberline {3.5.9}User Story \#9}{10}{subsection.3.5.9}
+\contentsline {subsubsection}{\numberline {3.5.9.a}User Story \#9 Breakdown}{10}{subsubsection.3.5.9.1}
+\contentsline {subsection}{\numberline {3.5.10}User Story \#10}{10}{subsection.3.5.10}
+\contentsline {subsubsection}{\numberline {3.5.10.a}User Story \#10 Breakdown}{10}{subsubsection.3.5.10.1}
 \contentsline {chapter}{\numberline {4}Design and Implementation}{11}{chapter.4}
 \contentsline {section}{\numberline {4.1}Traversing Subdirectories }{12}{section.4.1}
 \contentsline {subsection}{\numberline {4.1.1}Technologies Used}{12}{subsection.4.1.1}

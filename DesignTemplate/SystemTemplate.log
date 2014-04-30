@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.4.27)  27 APR 2014 20:44
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.4.27)  30 APR 2014 08:30
 entering extended mode
 **C:/Users/Owner/Documents/GitHub/ProgramTesterStage3/DesignTemplate/SystemTemp
 late.tex
@@ -1120,21 +1120,21 @@ ate.out)
 
 ]
 (C:\Users\Owner\Documents\GitHub\ProgramTesterStage3\DesignTemplate\SystemTempl
-ate.toc [3])
+ate.toc [3] [4])
 \tf@toc=\write5
- [4]
+ [5] [6
+
+]
 (C:\Users\Owner\Documents\GitHub\ProgramTesterStage3\DesignTemplate\SystemTempl
 ate.lof)
 \tf@lof=\write6
- [5
-
-] [6
+ [7] [8
 
 ]
 (C:\Users\Owner\Documents\GitHub\ProgramTesterStage3\DesignTemplate\SystemTempl
 ate.lot)
 \tf@lot=\write7
- [7] [8
+ [9] [10
 
 ]
 (C:\Users\Owner\Documents\GitHub\ProgramTesterStage3\DesignTemplate\SystemTempl
@@ -1142,18 +1142,18 @@ ate.loa)
 \tf@loa=\write8
 
 (C:\Users\Owner\Documents\GitHub\ProgramTesterStage3\DesignTemplate\mission.tex
-[9] [10
+[11] [12
 
 ])
 (C:\Users\Owner\Documents\GitHub\ProgramTesterStage3\DesignTemplate\preparation
-.tex [11] [12
+.tex [13] [14
 
 ]
 Overfull \hbox (7.03629pt too wide) in paragraph at lines 21--42
 [] 
  []
 
-) [13] [14
+) [15] [16
 
 ]
 (C:\Users\Owner\Documents\GitHub\ProgramTesterStage3\DesignTemplate\overview.te
@@ -1161,7 +1161,7 @@ x
 Chapter 1.
 [1
 
-] <./SystemDiagram.png, id=498, 512.66531pt x 395.22656pt>
+] <./SystemDiagram.png, id=526, 512.66531pt x 395.22656pt>
 File: ./SystemDiagram.png Graphic file (type png)
 
 <use ./SystemDiagram.png>
@@ -1186,13 +1186,13 @@ s.tex [5] [6
 
 ]
 Chapter 3.
-[7] [8])
+[7] [8] [9])
 (C:\Users\Owner\Documents\GitHub\ProgramTesterStage3\DesignTemplate\design.tex
-[9] [10
+[10]
+Chapter 4.
+[11
 
 ]
-Chapter 4.
-[11]
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
 (Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 40.
 LaTeX Font Info:    Try loading font information for OMS+cmr on input line 41.
@@ -1264,13 +1264,13 @@ Overfull \hbox (12.37616pt too wide) in paragraph at lines 21--21
 nathan
  []
 
-)
+[31])
 (C:\Users\Owner\Documents\GitHub\ProgramTesterStage3\DesignTemplate\industrial.
-tex [31] [32
-
-])
+tex [32])
 (C:\Users\Owner\Documents\GitHub\ProgramTesterStage3\DesignTemplate\appendx1.te
-x [33] [34
+x [33
+
+] [34
 
 ]pdfTeX warning (ext4): destination with the same identifier (name{section.10.1
 }) has been already used, duplicate ignored
@@ -1300,14 +1300,14 @@ ate.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 64.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 64.
 Package rerunfilecheck Info: File `SystemTemplate.out' has not changed.
-(rerunfilecheck)             Checksum: 6FF091AB9AFCE8D48E4E24EC25362AB2;5855.
+(rerunfilecheck)             Checksum: A3BE2A4C348DA0C236028C2E3C24848A;6141.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 64.
  ) 
 Here is how much of TeX's memory you used:
- 13498 strings out of 493921
- 184188 string characters out of 3148886
- 343907 words of memory out of 3000000
- 16285 multiletter control sequences out of 15000+200000
+ 13512 strings out of 493921
+ 184426 string characters out of 3148886
+ 343908 words of memory out of 3000000
+ 16289 multiletter control sequences out of 15000+200000
  15073 words of font info for 61 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
  50i,12n,49p,3367b,1817s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -1322,9 +1322,9 @@ fonts/cm/cmr12.pfb><C:/Program Files/MikTex/fonts/type1/public/amsfonts/cm/cmr1
 ram Files/MikTex/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/Mi
 kTex/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MikTex/fonts/t
 ype1/public/amsfonts/cm/cmtt10.pfb>
-Output written on SystemTemplate.pdf (51 pages, 298836 bytes).
+Output written on SystemTemplate.pdf (53 pages, 306120 bytes).
 PDF statistics:
- 789 PDF objects out of 1000 (max. 8388607)
- 191 named destinations out of 1000 (max. 500000)
- 678 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 823 PDF objects out of 1000 (max. 8388607)
+ 201 named destinations out of 1000 (max. 500000)
+ 710 words of extra memory for PDF output out of 10000 (max. 10000000)
 
