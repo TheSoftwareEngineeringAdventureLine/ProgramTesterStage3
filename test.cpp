@@ -1854,7 +1854,13 @@ void generateFiles(string testPath, string goldenName)
  *
  * @par Description:
  * Checks for the presents of a .spec file to promped the program to generate
- * tests based on the spec file
+ * tests based on the spec file, if the .spec file is found it is returned to 
+ * the parameter specName.
+ * 
+ * @param[out] specName - The name of the .spec file, returned if a .spec file
+ * is found in the directory
+ *
+ * @return true - A .spec file was found in the current directory
 ******************************************************************************/
 bool specFileCheck(string &specName )
 {
@@ -1899,23 +1905,41 @@ bool specFileCheck(string &specName )
  * @author Erik Hattervig
  *
  * @par Description:
- * 
+ * This function generates test cases for menu driven programs, this function
+ * expects the name of the name of the golden .cpp file and the name of the 
+ * .spec file ans input. This function should only be called if a .spec file 
+ * is present. The function will prompt the user for the number of test cases
+ * to generate, the the min and max of numbers that the user wants, and the 
+ * length of strings that will be generated. The function then reads the input
+ * from the .spec file and generates appropriate test cases based on the 
+ * contents of the file.
+ *
+ * @param[in] goldenName - the name of the golden cpp file in the directory
+ * @param[in] specName - the name of the .spec file in the directory
+ *
+ * @returns - none
 ******************************************************************************/
 void generateMenuTestCases( string goldenName , string specName )
 {
-    int numTestCases;
-    float temp;
-    ifstream specFile;
-    ofstream outFile;
-    string pathName;
-    string homePath = get_pathname();
-    ostringstream convert;
-    string command;
-    string testString;
-    int max;
-    int min;
-    float tempRand;
-    int stringSize;
+    int numTestCases;   // the number of test cases to generate, the user will
+                        //   the number
+    float temp;         // used for input
+    ifstream specFile;  // file stream of the .spec file
+    ofstream outFile;   // file stream of the current .tst file being writen to
+    string pathName;    // path to the directory containing the generated .tst
+                        //   files
+    string homePath = get_pathname();   // the path to the current directory
+    ostringstream convert;  // used in converting ints to strings for creating
+                            //   .tst files
+    string command;     // string used to create command line arguments
+    string testString;  // string used in the creation of random strings
+    int max;            // the maximum range of generated digits, user will 
+                        //   input this
+    int min;            // the minimum range of generated digits, user will
+                        //   input this
+    float tempRand;     // used in the generation of random floating point
+                        //   numbers
+    int stringSize;     // the length of random strings, user will input this
     int i, j;
     
     tempRand = 0;
