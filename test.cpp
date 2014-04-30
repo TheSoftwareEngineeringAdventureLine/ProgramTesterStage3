@@ -2334,6 +2334,8 @@ bool cmpFiles(string s1, string s2)
     if( !file1 || !file2 )
     {
         cout << "Files to be compared could not be opened" << endl;
+        file1.close();
+        file2.close();
         return false;
     }
 
@@ -2352,6 +2354,8 @@ bool cmpFiles(string s1, string s2)
                         if (!cmpNum(in1,in2))
                         {
                             //file failed
+                            file1.close();
+                            file2.close();
                             return false;
                         }
                     }
@@ -2359,6 +2363,8 @@ bool cmpFiles(string s1, string s2)
                     {
                         //in1 is number, in2 is not, file is wrong
                         //file failed
+                        file1.close();
+                        file2.close();
                         return false;
                     }
                 }
@@ -2368,6 +2374,8 @@ bool cmpFiles(string s1, string s2)
                     {
                         //in1 is a string in2 is a number, file is wrong
                         //file failed
+                        file1.close();
+                        file2.close();
                         return false;
                     }
                     else
@@ -2377,6 +2385,8 @@ bool cmpFiles(string s1, string s2)
                         if (!cmpString(in1,in2))
                         {
                             //file failed
+                            file1.close();
+                            file2.close();
                             return false;
                         }
                     }
@@ -2387,6 +2397,8 @@ bool cmpFiles(string s1, string s2)
         {
             //file is missing information
             //file failed
+            file1.close();
+            file2.close();
             return false;
         }
     }
@@ -2395,7 +2407,11 @@ bool cmpFiles(string s1, string s2)
     if (file2 >> in2)
     {
         //file failed
+        file1.close();
+        file2.close();
         return false;
     }
+    file1.close();
+    file2.close();
     return true;
 }

@@ -7,28 +7,24 @@
 
 \begin{itemize}
   \item Determine if there is a .cpp file in the root directory, if so it is used to generate test cases
-  \item Create a vector of every subdirectory in program folder
+  \item Create a vector containing every subdirectory in program folder
   \item Change to directory where student subdirectories are located
   \item Step through each directory in the directory vector and determine if it contains tests or student source code
   \item Create a vector containing the name each student's source and one containing the path to their source code
-  \item Create a vector of all the test cases
+  \item Create a vector containing all of the test cases
   \item While the source code vector is not empty
   \item Compile the program
   \item Determine if the student passes the critical test cases, if not stop testing
   \item Run code against tests in the test vecotor
   \item Count whether the program passed or failed test case
-  \item Change back to home directory (where program is located)
-  \item Create a queue of every .tst file in home directory
-  \item While test case queue is not empty:
-  \item Dequeue first test case in queue
-  \item Run program using that test case
-  \item Count whether the program passed or failed test case
+  \item If it failed with a normal diff, test if it passes with presentation errors
+  \item Change back to home directory 
   \item Write log file containing percentage of tests passed and final grade
   \item Write students results to summary file
 \end{itemize}
 
 
-\section{Traversing Subdirectories }
+\section{Traversing Subdirectories (Sprint 2)}
 
 \subsection{Technologies  Used}
 The dirent.h library is used for traversing subdirectories.
@@ -59,7 +55,7 @@ bool is_dir(string dir)
 }
 \end{lstlisting}
 
-\section{Running the Program Using Test Cases }
+\section{Running the Program Using Test Cases (Sprint 2)}
 
 \subsection{Technologies  Used}
 The software was designed in the Linux Environment.
@@ -90,4 +86,128 @@ int run_file(string cpp_file, string test_case) //case_num
 }
 \end{lstlisting}
 
+\section {Testing to Allow for Presentation Errors}
+
+\subsection {Technologies Used}
+This set of function relies on the string, cmath, and fstream libraries to test if two
+files match, allowing for presentation errors.
+
+\subsection {Design Details}
+This software checks if two files match, allowing for presentation errors.  These presentation
+errors include, ignoring capitilization errors, if two words start and end with the same letters
+then they are counted as matching, if two words have the same letters but the wrong
+order they are counted as matching, if a number would round to the correct value it is
+considered correct.  Below is the code for comparing two files.
+
+\begin{lstlisting}
+bool cmpFiles(string s1, string s2)
+{
+    ifstream file1, file2;
+    string in1, in2;
+
+    file1.open(s1.c_str());
+    file2.open(s2.c_str());
+    if( !file1 || !file2 )
+    {
+        cout << "Files to be compared could not be opened" << endl;
+        file1.close();
+        file2.close();
+        return false;
+    }
+
+    while (file1 >> in1)
+    {
+        if (file2 >> in2)
+        {
+            if(in1 != in2)
+            {
+                if(isNumber(in1))
+                {
+                    if(isNumber(in2))
+                    {
+                        //both inputs are numbers
+                        //if in2 doesn't round to in1 file is wrong
+                        if (!cmpNum(in1,in2))
+                        {
+                            //file failed
+                            file1.close();
+                            file2.close();
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        //in1 is number, in2 is not, file is wrong
+                        //file failed
+                        file1.close();
+                        file2.close();
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(isNumber(in2))
+                    {
+                        //in1 is a string in2 is a number, file is wrong
+                        //file failed
+                        file1.close();
+                        file2.close();
+                        return false;
+                    }
+                    else
+                    {
+                        //in1 and in2 are strings
+                        //if in1 and in2 don't match with presentation errors
+                        if (!cmpString(in1,in2))
+                        {
+                            //file failed
+                            file1.close();
+                            file2.close();
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            //file is missing information
+            //file failed
+            file1.close();
+            file2.close();
+            return false;
+        }
+    }
+
+    //if the second file has additonal information
+    if (file2 >> in2)
+    {
+        //file failed
+        file1.close();
+        file2.close();
+        return false;
+    }
+    file1.close();
+    file2.close();
+    return true;
+}
+\end{lstlisting}
+
+\section {System Diagram}
+The following are system diagrams for first, the overall program, and the second a more detailed
+one of how to determine if two files match with presentation errors.
+
+\begin {figure}[tbh]
+\begin {center}
+\includegraphics[width=1\textwidth]{./SystemDiagram}
+\end{center}
+\caption{System Diagram\label{systemdiagram}}
+\end{figure}
+
+\begin{figure}[tbh]
+\begin{center}
+\includegraphics[width=1\textwidth]{./SystemDiagram2}
+\end{center}
+\caption{System Diagram for Testing to Allow for Presentation Errors\label{systemdiagram2}}
+\end{figure}
 
