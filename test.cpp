@@ -82,6 +82,8 @@
 
 #include <cstdio>
 
+#include <fcntl.h>
+
 /*************************************************************************//**
 *********************************NAMESPACE************************************
 ******************************************************************************/
@@ -235,7 +237,8 @@ int main(int argc, char ** argv)
     {
         root = current;
     }
-    
+    char * temp = strcpy( cCurrentPath, root.c_str() );
+    root = format_argv( cCurrentPath );
     mainMenu(root);
     
 
@@ -351,6 +354,11 @@ int run_file(string cpp_file, string test_case)
     const int MAX_TIME = 10;
     bool timeLimit = false;
     
+    //file pointers
+    int fpt1, fpt2;
+    
+    
+    
     string run_cmd("./");
     int result;
     cpp_file = student_name(cpp_file);
@@ -370,28 +378,51 @@ int run_file(string cpp_file, string test_case)
     //Commenting out because no longer needed. The program
     // needs to be ran using fork and execv calls to catch
     // infinite loops.
-    /*
+ 
+    
     buffer1 += run_cmd + buffer2 + test_case + buffer3 + case_out;
     system(buffer1.c_str());
-    */
+    
     
     //fork from the parent process.
+    //Infinite Loop test NOT WORKING.
+    //commented out so still viewable... but going back to original code.
+    
+    /*
     childPid = fork();
+    
     
     if( childPid = 0 )
     {
         //construct the arguments for the command execv;
         buffer1 += run_cmd;
-        char * args[7];
+        char * args[4];
         strcpy(args[0], buffer1.c_str() );
-        strcpy( args[1], "&>" );
-        strcpy( args[2], "/dev/null");
-        strcpy( args[3],"<");
-        strcpy( args[4], test_case.c_str() );
-        strcpy(args[5], ">");
-        strcpy(args[6], case_out.c_str());
         
-        execv(buffer1.c_str(), args );
+         
+       
+        if ((fpt1 = open(test_case.c_str(), O_RDONLY)) == -1)
+        {
+                cerr << "Unable to open '" << test_case 
+                        << "' for reading." << endl;
+                exit(-1);
+        }
+        close(0);       // close child standard input
+        dup(fpt1);      // redirect the child input
+        close(fpt1);    // close unnecessary file descriptor
+        
+        if ((fpt2 = creat(case_out.c_str(), 0644)) == -1)
+          {
+                cerr << "Unable to open '" << case_out
+                        << "' for writing." << endl;
+                exit(-1);
+          }
+        close(1);       // close child standard output 
+        dup(fpt2);      // redirect the child output 
+        close(fpt2);    // close unnecessary file descriptor
+        
+       
+        execl( args[0], args[0], 0);
         //if the execv fails.. this line will be displayed.
         cout << "Execv command failed to execute!" << endl;
         exit(-1);
@@ -419,19 +450,28 @@ int run_file(string cpp_file, string test_case)
             kill(childPid, 9 );
         }
     }
+    */
     
-    string remove("rm " + case_out);
-    
-    
+   
+
   
     //0 = Fail, 1 = Pass, 2 = Pass with presentation error
+    //timeLimit will always be false for now, while
+    //the infinite loop code is commented out.
+    //couts were for debugging purposes.
     if( !timeLimit )
     {
-        result =  result_compare(test_case);
+        //cout << "Did not run over time limit" << endl;
+        result =  result_compare(case_out);
+        //cout << result << endl;
     }
     else
+    {
+        //cout << "Ran over time limit." << endl;
         result = 0;
-   
+        //cout << result << endl;
+    }
+    string remove("rm " + case_out);
     system(remove.c_str());
     return result;
 }
@@ -535,7 +575,7 @@ bool test_loop(string class_folder, bool generate)
     bool passed;
 
     ofstream fout, student_fout;
-    string log_name(log_filename(class_folder));
+    string log_name(log_filename(class_folder.substr(class_folder.find_last_of('/'))));
     string golden_name;  						//if there is a .cpp, golden exists
     string golden_dir;	//if golden.cpp exists it exists in golden_dir
     string student_logname;
@@ -548,13 +588,11 @@ bool test_loop(string class_folder, bool generate)
     vector<string> source_paths;				//path to student source code
     vector<string> crit_cases;
 
-    string homepath(get_pathname() + "/");  //create string with home path name
-    string subpath(get_pathname() + "/");   //create a string with current directory path
-    string progpath(get_pathname() + "/" + class_folder + "/"); //string with path to prog file
+    string homepath = class_folder + "/";  //create string with home path name
 
     if(generate)
     {
-        golden_dir = homepath + class_folder + "/";	//create path to find golden.cpp
+        golden_dir = homepath;	//create path to find golden.cpp
         //golden = true if golden.cpp exists, golden.cpp filename will be golden_name
         bool golden = isGolden(golden_name, golden_dir, get_pathname());
 
@@ -568,7 +606,7 @@ bool test_loop(string class_folder, bool generate)
             }
             else
             {
-                generateFiles(homepath +class_folder, golden_name);
+                generateFiles(class_folder, golden_name);
             }
 		}
         else
@@ -577,7 +615,7 @@ bool test_loop(string class_folder, bool generate)
 
     vector_directories(class_folder, sub_dir);   //place all subdirectory names in vector
     //Open summary log file
-    fout.open((homepath + class_folder + "/" + log_name).c_str());    //open file
+    fout.open((homepath + log_name).c_str());    //open file
 
     //use this to find all the students source code, the path to the source code,
     // and the test files.. run the tests elsewhere.
@@ -595,7 +633,7 @@ bool test_loop(string class_folder, bool generate)
 
         else
         {
-            change_dir(homepath + sub_dir.back()); //change to next subdirectory in vector
+            change_dir(sub_dir.back()); //change to next subdirectory in vector
 
             vector_test_cases(test_cases, crit_cases); //vector .tst files in current directory
 
@@ -1576,7 +1614,7 @@ void generateFiles(string testPath, string goldenName)
         cout << " 3) character string" << endl;
         cin >> choice;
         
-        if ( choice != 1 || choice != 2 || choice != 3)
+        if ( choice != 1 && choice != 2 && choice != 3)
         {
             cout << "Please enter 1, 2, or 3." << endl;
             choice = 0;
