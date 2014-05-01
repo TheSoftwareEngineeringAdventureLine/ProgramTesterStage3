@@ -8,13 +8,42 @@ information to setup their development environment to run, test, and/or develop.
 This program was developed in a Linux environment. The g++ compiler was used for compilation and generic text editors were used to write the code (QT,gedit,etc.).
 
 \section{Source  Control}
-Git was used for source control in the project. Our repository is setup on the GitHub website. However, it is private and can only be accessed once a developer is deemed a collaborator. 
+Git was used for source control in the project. Our repository is setup on the GitHub website at
+\url{https://github.com/TheSoftwareEngineeringAdventureLine/ProgramTesterStage3}
 
 
 \section{Dependencies}
-There are no atypical dependencies to compile and run this program. 
+There are no atypical dependencies to compile and run this program, other than the C++ Standard Library.
 
 \section{Build  Environment}
 The program may be built using the g++ compiler on linux. There is also a {\tt Makefile} which allows the user to type {\tt make} to compile the program.
+The following is the most common way to use g++ to compile the source code: 
 
+\begin{lstlisting}
+g++ -o test test.cpp
+\end{lstlisting}
+
+\bigskip
+The following is the included make file:
+
+\begin{lstlisting}
+# Use the GNU C/C++ compiler:
+CC = gcc
+CPP = g++
+
+# COMPILER OPTIONS:
+
+CFLAGS = -c
+
+#OBJECT FILES
+OBJS = test.o
+
+tester: test.o
+	${CPP} -lm ${OBJS} -o tester
+test.o: test.cpp
+clean:
+	rm -f *.o tester
+realclean:
+	rm -f *.o tester *~ *.swp
+\end{lstlisting}
 

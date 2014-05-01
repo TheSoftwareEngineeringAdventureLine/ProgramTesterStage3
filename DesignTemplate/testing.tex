@@ -72,10 +72,24 @@ Test Directory 2:
   Golden Source Code: none
 \end{verbatim}
 
+\paragraph {Test checking for presentation errors}
+This set of tests and programs was designed to test if the program would correctly identify and label presentation errors,
+rather than just failing the test.
+\begin {verbatim}
+Test Directory 3:
+  Students:
+    student_1 Passes all test cases
+    student_2 Passes all test cases with some presentation errors
+    student_3 Passes all test cases with presentation errors
+    student_4 Fails all test cases
+
+  Test cases are all in one sub directory
+\end {verbatim}
+
 \paragraph{Test Generation Function}
 Multiple test cases were run against the function that generates the random values for the generated .tst files. Some of these test scenarios are:
 \begin{itemize}
-    \item Passing in different values when either "int" or "float" are selected initially (typical testing)
+    \item Passing in different values when either "int", "float", "string" or, when a ".spec" file is found, "menu-driven" are selected initially (typical testing)
     \item Passing in floating minimum and maximum values to integer generation. 
     \item Intentional use of improper values.
     \item Generating test cases in a directory where they had previously been stored (will not overwright old files).

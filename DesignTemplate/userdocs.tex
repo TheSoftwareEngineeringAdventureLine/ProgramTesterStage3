@@ -9,18 +9,37 @@
 \section{User Guide}
 
 This product is to make it easy for you to grade multiple computational computer program written in C++ language. In order to benefit from this product, the student directories must all be contained within the same "root" directory.
-Within each student's directory there must be a .cpp file that has the same name as the student's directory (omit the extension). That directory should also contain the test cases the user wishes to run against each student's program.
+Within each student's directory there must be a .cpp file that has the same name as the student's directory (omit the extension). The root directory should also contain a subdirectory containing the test cases the user wishes to run against each student's program.
 Finally, if the user wishes to have test cases generated, the root directory should contain a .cpp file which will be compiled and used to generate answers to the generated test cases. In summary the root directory should contain:
     \begin{itemize}
   		\item The subdirectories containing student source code
   		\item Test files or subdirectories containing test files (with {\tt .tst} extensions)
   		\item Corresponding solution files (with {\tt .ans} extensions)
         \item A .cpp to generate answers to generated test cases. 
+                    \item If Menu driven test generation is wanted a Spec file (with a {\tt .spec} extension)
 	\end{itemize} 
 
-As a user, you must complie this program in a Linux environment. To run this program the first command line argument must be the name of the dirctory you wish to test (note this program must be executed in a directory "one step back" from the directory you wish to test. If you want to generate test cases, a second command line argument "-g" must be specified when executing the program. 
+As a user, you must complie this program in a Linux environment. To run this program the first command line argument must be the name of the dirctory you wish to test this path specified can either be a full path, starting with '/', or a local path from the current working directory.
 
+For actually executing the program use a terminal to navigate to the directory containing the executable file then use a command like the following
+
+\begin {lstlisting}
+./test <directory_path>
+\end{lstlisting}
+
+
+Where directory path is the path to the directory to be tested, whether it is a local 
+path (example 1 below) or a full path (example 2 below)
+
+\begin {lstlisting}
+Example 1:
+     ./test csc_150
+Example 2:
+    ./test /home/student/7027352/classes/csc_150
+\end{lstlisting}
+Assuming that the program is executing from /home/student/7027352/classes both 
+examples will execute the code the same way.
 
 
 \subsection {Test Case Generation}
-If a "-g" is the second command line arugment and a .cpp file exists within the directory being traversed prompts will be displayed to determine what type of test cases you want to generate. You may generate floting point or integer values, decide in what range you want the values generated, decide how many values to generate in each .tst file, and choose how many .tst files you want to generate. After all these values are specified, the program will create each .tst file, compile the "golden.cpp" file, run each test file through the golden.cpp executable, and output to individual answer (.ans) files.
+If test generation is selected from the main menu and a .cpp file exists within the directory being traversed prompts will be displayed to determine what type of test cases you want to generate. You may generate floting point,  integer, string, or menu-driven test cases, decide in what range you want the values generated, decide how many values to generate in each .tst file, and choose how many .tst files you want to generate. After all these values are specified, the program will create each .tst file, compile the "golden.cpp" file, run each test file through the golden.cpp executable, and output to individual answer (.ans) files.

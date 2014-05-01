@@ -5,7 +5,7 @@
  *
  * @section course_section CSC 470
  *
- * @author Ben Sherman, James Tillma, Anthony Morast
+ * @author Andrew Koc, Erik Hattervig, Jonathan Tomes
  *
  * @date March 23,2014
  *
@@ -39,10 +39,13 @@
    @endverbatim
  *
  * @section todo_bugs_modification_section Todo, Bugs, and Modifications
- *
- * @bug none
- *
- * @todo Sprint 1 complete
+ * @todo This program still does not have gcov, or gprof support
+ * to allow for more profiling
+ * @bug This program doesn't have infinite loop stopping for the files
+ * to be tested, it wasn't pipeing the output, and would also kill this
+ * program rather than just the program being tested
+ * @bug This code doesn't do string generation because when selected the
+ * code freezes up, a reson for this has not been found
  *
  * @par Modifications and Development Timeline:
    @verbatim
