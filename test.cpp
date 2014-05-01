@@ -602,7 +602,7 @@ bool test_loop(string class_folder, bool generate)
     {
         golden_dir = homepath;	//create path to find golden.cpp
         //golden = true if golden.cpp exists, golden.cpp filename will be golden_name
-        bool golden = isGolden(golden_name, golden_dir, get_pathname());
+        bool golden = isGolden(golden_name, golden_dir, homepath);
 
         //call James' function here!
         if (golden)
@@ -1998,8 +1998,8 @@ void generateMenuTestCases( string goldenName , string specName )
         // output a test case of 0 for first menu option
         outFile << "0" << endl;
         
-        specFile >> command;
-        while( !specFile.eof() )
+        //specFile >> command;
+        while( specFile >> command )
         {
             if ( command == "int" )
             {
@@ -2033,14 +2033,15 @@ void generateMenuTestCases( string goldenName , string specName )
             else
             {
                 // output the menu option to the tst
-                outFile << command;
+                outFile << command << endl;
             }
             
             
-            specFile >> command;
+            //specFile >> command;
         }
-        generate_ans( goldenName, pathName);
         outFile.close();
+        generate_ans( goldenName, pathName);
+
     }
     
     
